@@ -20,20 +20,19 @@
 
 ### Sprint 0 — Setup & Esqueleto _(26–28 sep)_
 **Objetivo:** dejar el proyecto listo para iterar.
-- [ ] Crear repo y proyecto **Godot 4.x**
-- [ ] Estructura carpetas: `scenes/`, `scripts/`, `ui/`, `assets/placeholder/`, `core/`, `combat/`, `shop/`
-- [ ] Stubs de clases: `Run`, `Round`, `Board`, `Tile`, `Player`, `Shop`, `ShopOffer`, `Piece` (+subclases), `PieceBlueprint`, `Enemy`, `Behavior`, `Effect`
+- [x] Crear repo y proyecto **Godot 4.x**
+- [x] Estructura carpetas: `scenes/`, `scripts/`, `ui/`, `assets/placeholder/`, `core/`, `combat/`, `shop/`
+- [ ] Stubs de clases: `Run`, `Round`, `Board`, `BoardTile`, `Player`, `Shop`, `ShopOffer`, `Piece` (+subclases), `PieceBlueprint`, `Enemy`, `Behavior`, `Effect`
 - [ ] Enums: `PieceType`, `Rarity`, `TileState`, `RunState`
 **DoD**
 - [ ] Escena principal corre con botón **Start Run**
-- [ ] Proyecto compila sin errores
 
 ---
 
 ### Sprint 1 — Modelo + Tablero Base _(29 sep – 5 oct)_
 **Objetivo:** tablero operativo y piezas colocables (sin combate).
-- [ ] `Board`: grilla visible, `Tile` clicable, estados (vacía/ocupada)
-- [ ] Colocar/retirar `Piece` desde inventario del `Player`
+- [ ] `Board`: grilla visible, estados (vacía/ocupada)
+- [ ] Colocar/retirar `Piece` en el tablero 
 - [ ] `legalMoves()` para **Peón**, **Torre**, **Caballo** (resto stub)
 - [ ] HUD básico: **oro** + **inventario**
 **DoD**
