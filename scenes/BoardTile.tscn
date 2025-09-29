@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://dyolk6cdxyyu1"]
+
+[ext_resource type="Script" uid="uid://d2j3fg4m6srsx" path="res://scripts/board/BoardTile.gd" id="1_3xaap"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_naf18"]
+size = Vector2(40, 40)
+
+[node name="BoardTile" type="Node2D"]
+script = ExtResource("1_3xaap")
+is_dark = true
+color_light = Color(0.8980392, 0.8980392, 0.8980392, 1)
+color_dark = Color(0.18039216, 0.21960784, 0.34901962, 1)
+highlight_color = Color(0.8745098, 0.85882354, 0, 0.25490198)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+visible = false
+position = Vector2(20, 20)
+shape = SubResource("RectangleShape2D_naf18")

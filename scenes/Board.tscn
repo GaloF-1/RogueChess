@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://duj8w2c5p2aa4"]
+
+[ext_resource type="Script" uid="uid://dtusw62eh5yo" path="res://scripts/board/Board.gd" id="1_hs2ul"]
+
+[node name="Board" type="Node2D"]
+script = ExtResource("1_hs2ul")
+board_size = 3
+centered = false
+
+[node name="Tiles" type="Node2D" parent="."]
