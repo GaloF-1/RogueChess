@@ -4,7 +4,6 @@
 
 [node name="Board" type="Node2D"]
 script = ExtResource("1_hs2ul")
-board_size = 3
-centered = false
+board_size = 4
 
 [node name="Tiles" type="Node2D" parent="."]
