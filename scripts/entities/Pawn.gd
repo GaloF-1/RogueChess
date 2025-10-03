@@ -1,28 +1,26 @@
 extends Piece
 class_name Pawn
 
-func get_moves(board) -> Array[Vector2i]:
+func get_moves(board: Board) -> Array[Vector2i]:
 	var moves: Array[Vector2i] = []
-	var dir := -1 if color == PieceColor.WHITE else 1  # blancos suben en Y
+	var dir := -1 if color == PieceColor.WHITE else 1
 
-	var one := coord + Vector2i(0, dir)
-	if _is_empty(board, one):
-		moves.append(one)
-		# doble paso desde fila inicial (6 blancos, 1 negros en convención y=0 arriba)
+	var one_step := coord + Vector2i(0, dir)
+	if board.is_coord_empty(one_step):
+		moves.append(one_step)
 		var start_row := 6 if color == PieceColor.WHITE else 1
-		var two := coord + Vector2i(0, 2 * dir)
-		if coord.y == start_row and _is_empty(board, two):
-			moves.append(two)
+		var two_step := coord + Vector2i(0, 2 * dir)
+		if coord.y == start_row and board.is_coord_empty(two_step):
+			moves.append(two_step)
 
-	# capturas diagonales
 	for dx in [-1, 1]:
 		var diag := coord + Vector2i(dx, dir)
-		var p : Piece = board.get_piece_at(diag)
-		if p and p.color != color:
+		var piece_at := board.get_piece_at(diag)
+		if piece_at and piece_at.color != color:
 			moves.append(diag)
 
-	# limitar a 8x8
-	return moves.filter(func(c): return c.x >= 0 and c.x < board.board_size and c.y >= 0 and c.y < board.board_size)
+	return moves.filter(func(c: Vector2i) -> bool: 
+		return c.x >= 0 and c.x < board.board_size and c.y >= 0 and c.y < board.board_size)
 
 
 func _is_empty(board, c: Vector2i) -> bool:

@@ -12,6 +12,7 @@ const TILE_SCN := preload("res://scenes/Tile.tscn")
 var _selected_piece: Piece = null
 var _legal_moves: Array[Vector2i] = []
 var _tiles: Dictionary[Vector2i, Tile] = {} 
+var _moving: bool = false
 
 # Índice rápido para piezas (evita O(n) y ayuda a detectar inconsistencias)
 var _piece_index: Dictionary[Vector2i, Piece] = {}
@@ -81,6 +82,14 @@ func _move_piece_to(piece, coord: Vector2i) -> void:
 	piece.position = Vector2(coord) * tile_px + Vector2(tile_px/2, tile_px/2) # centro
 
 
+func _on_piece_coord_changed(p: Piece, old_c: Vector2i, new_c: Vector2i) -> void:
+	if _piece_index.has(old_c) and _piece_index[old_c] == p:
+		_piece_index.erase(old_c)
+	if _piece_index.has(new_c) and _piece_index[new_c] != p:
+		push_warning("[Board] Colisión en " + str(new_c) + " entre " + _piece_index[new_c].name + " y " + p.name)
+	_piece_index[new_c] = p
+
+
 
 func _highlight_moves(moves: Array[Vector2i]) -> void:
 	for c in moves:
@@ -95,39 +104,66 @@ func _clear_selection() -> void:
 		t.set_highlight(false)
 
 
-func move_piece_to(piece: Piece, coord: Vector2i) -> void:
-	var from := piece.coord
-	var other := get_piece_at(coord)
-
-	if debug_mode:
-		print("[MOVE] ", piece.name, " ", _color_str(piece.color), " de ", from, " -> ", coord," | destino ocupante=", (other.name + " " + _color_str(other.color)) if other else "None")
-
-	# Captura
-	if other and other.color != piece.color:
-		other.queue_free()
-		# quitar del índice
-		_piece_index.erase(coord)
-	elif other and other.color == piece.color:
+func move_piece_to(piece: Piece, target_coord: Vector2i) -> void:
+	if _moving:
 		if debug_mode:
-			push_warning("[MOVE] Casilla destino ocupada por MISMA pieza; no debería ser legal.")
-		return  # o manejar como movimiento ilegal según tu UX
+			push_warning("[MOVE] Ignorando movimiento: otro en progreso.")
+		return
+	_moving = true
 
-	# actualizar índice (from -> libre, coord -> piece)
-	_piece_index.erase(from)
-	_piece_index[coord] = piece
+	var occupying_piece: Piece = get_piece_at(target_coord)
+	var occupying_desc := "None"
+	if occupying_piece:
+		occupying_desc = occupying_piece.name + " " + _color_str(occupying_piece.color)
+	if debug_mode:
+		print("[MOVE] ", piece.name, " ", _color_str(piece.color),
+			  " de ", piece.coord, " -> ", target_coord, " | destino ocupante=", occupying_desc)
 
-	piece.coord = coord
-	piece.position = coord_to_position(coord)
+	if occupying_piece and occupying_piece.color != piece.color:
+		_piece_index.erase(occupying_piece.coord)
+		occupying_piece.visible = false
+		occupying_piece.process_mode = Node.PROCESS_MODE_DISABLED
+		occupying_piece.draggable = false
+		occupying_piece.free()
+		occupying_piece = null
 
+	if occupying_piece and occupying_piece.color == piece.color:
+		if debug_mode:
+			push_warning("[MOVE] Movimiento ilegal: misma pieza en destino.")
+		_moving = false
+		return
+
+	piece.coord = target_coord
+
+	if debug_mode and get_piece_at(target_coord) != piece:
+		push_error("[MOVE] Índice desincronizado tras mover " + piece.name + " a " + str(target_coord))
+
+	_rebuild_index()  # Sincronizar índice inmediatamente
+	clear_selection()
 	if debug_mode:
 		_update_tiles_overlay()
+	_moving = false
+
+
+# Verifica si una coordenada está vacía (dentro del tablero y sin pieza).
+func is_coord_empty(coord: Vector2i) -> bool:
+	var is_empty := (coord.x >= 0 and coord.x < board_size and 
+					 coord.y >= 0 and coord.y < board_size and 
+					 get_piece_at(coord) == null)
+	if debug_mode:
+			print("[DEBUG] is_coord_empty(", coord, ") = ", is_empty, " | piece_at=", get_piece_at(coord))
+	return is_empty
 
 
 func get_piece_at(coord: Vector2i) -> Piece:
-	for child in $Pieces.get_children():
-		if child is Piece and child.coord == coord:
-			return child
-	return null
+	var p = _piece_index.get(coord)
+	if p == null:
+		return null
+	# Evita devolver una instancia muerta
+	if not is_instance_valid(p):
+		_piece_index.erase(coord)
+		return null
+	return p
 
 
 # Helpers coord <-> posición local al Board

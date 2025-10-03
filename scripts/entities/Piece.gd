@@ -4,7 +4,6 @@ class_name Piece
 enum PieceColor { WHITE, BLACK }
 
 @export var color: PieceColor = PieceColor.WHITE
-@export var coord: Vector2i = Vector2i(0, 0)
 @export var sprite_white: Texture2D
 @export var sprite_black: Texture2D
 @export var draggable: bool = true
@@ -16,7 +15,70 @@ enum PieceColor { WHITE, BLACK }
 var _dragging := false
 var _drag_offset: Vector2 = Vector2.ZERO
 var _drag_start_coord: Vector2i
-var _drag_start_pos: Vector2
+var _drag_current_coord: Vector2i = coord
+var _coord: Vector2i = Vector2i(0, 0)
+
+@export var coord: Vector2i:
+	get:
+		return _coord
+	set(value):
+		var old := _coord
+		_coord = value
+		var board := _get_board()
+		if board:
+			board._on_piece_coord_changed(self, old, value)  # mantiene el índice
+			position = board.coord_to_position(value)        # snap visual
+
+
+func _start_drag() -> void:
+	var board: Board = _get_board()
+	if not board or board._moving or not draggable:
+		return
+	_dragging = true
+	_drag_start_coord = coord
+	_drag_current_coord = coord
+	_drag_offset = global_position - get_global_mouse_position()
+	z_index = 1000
+	if board:
+		board.select_piece(self)
+
+func _process(_delta: float) -> void:
+	if _dragging:
+		global_position = get_global_mouse_position() + _drag_offset
+		var board: Board = _get_board()
+		if board:
+			_drag_current_coord = board.position_to_coord(board.to_local(global_position))
+
+func _end_drag() -> void:
+	if not is_inside_tree() or not is_instance_valid(self) or process_mode == PROCESS_MODE_DISABLED:
+		_dragging = false
+		return
+	_dragging = false
+	z_index = 1
+	var board: Board = _get_board()
+	if not board:
+		position = board.coord_to_position(_drag_start_coord)
+		return
+
+	var target: Vector2i = _drag_current_coord
+	board._rebuild_index()  # Forzar sincronización antes de calcular movimientos
+	var occ_before: Piece = board.get_piece_at(target)
+	var legal := get_moves(board)
+	var is_legal := target in legal
+
+	print("[DROP] ", name, " ", _color_str(color), " from=", _drag_start_coord, " -> ", target,
+		  " | legal=", is_legal, " | occ_before=",(occ_before.name + " " + _color_str(occ_before.color)) if occ_before else "None")
+
+	if is_legal:
+		board.move_piece_to(self, target)
+	else:
+		coord = _drag_start_coord
+		position = board.coord_to_position(_drag_start_coord)
+
+	board.clear_selection()
+	if _hitbox:
+		_hitbox.monitoring = false  # Desactivar hitbox tras drop
+
 
 func _ready() -> void:
 	print("Piece ", name, " color=", "WHITE" if color == PieceColor.WHITE else "BLACK", " coord=", coord)
@@ -37,6 +99,7 @@ func _setup_hitbox() -> void:
 	if not _hitbox.input_event.is_connected(_on_hitbox_input):
 		_hitbox.input_event.connect(_on_hitbox_input)
 
+
 func _on_hitbox_input(viewport, event, shape_idx) -> void:
 	if not draggable:
 		return
@@ -45,48 +108,6 @@ func _on_hitbox_input(viewport, event, shape_idx) -> void:
 			_start_drag()
 		else:
 			_end_drag()
-
-func _process(_delta: float) -> void:
-	if _dragging:
-		# Usamos global_position para evitar problemas de espacios
-		global_position = get_global_mouse_position() + _drag_offset
-
-func _start_drag() -> void:
-	var board: Board = _get_board()
-	_dragging = true
-	_drag_start_coord = coord
-	_drag_start_pos = position
-	_drag_offset = global_position - get_global_mouse_position()
-	z_index = 1000  # traer al frente
-
-	if board:
-		board.select_piece(self)
-
-func _end_drag() -> void:
-	_dragging = false
-	z_index = 1
-	var board: Board = _get_board()
-	if not board:
-		position = _drag_start_pos
-		return
-
-	var local_pos := board.to_local(global_position)
-	var target: Vector2i = board.position_to_coord(local_pos)
-
-	var occ_before: Piece = board.get_piece_at(target)
-	var legal := get_moves(board)
-	var is_legal := target in legal
-
-	print("[DROP] ", name, " ", _color_str(color), " from=", _drag_start_coord, " -> ", target,
-		  " | legal=", is_legal, " | occ_before=",(occ_before.name + " " + _color_str(occ_before.color)) if occ_before else "None")
-
-	if is_legal:
-		board.move_piece_to(self, target)
-	else:
-		coord = _drag_start_coord
-		position = _drag_start_pos
-
-	board.clear_selection()
 
 
 func _color_str(c: int) -> String:
