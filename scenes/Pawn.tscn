@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://d12cqs1lc0dnf"]
+
+[ext_resource type="Script" uid="uid://bs0n8w1jkwpkm" path="res://scripts/entities/Pawn.gd" id="1_b4kb6"]
+[ext_resource type="Texture2D" uid="uid://w3qnndv40efn" path="res://assets/Chess Pieces/pawn_white.png" id="2_ht344"]
+[ext_resource type="Texture2D" uid="uid://v4gsmacnxhya" path="res://assets/Chess Pieces/pawn_black.png" id="3_247x2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_247x2"]
+
+[node name="Pawn" type="Node2D"]
+z_index = 1
+script = ExtResource("1_b4kb6")
+sprite_white = ExtResource("2_ht344")
+sprite_black = ExtResource("3_247x2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_247x2")

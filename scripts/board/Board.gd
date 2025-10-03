@@ -1,109 +1,222 @@
-@tool
 extends Node2D
+class_name Board
 
-# Asigna tu escena de tile aquí (o arrástrala por Inspector si preferís)
-@export var tile_scene: PackedScene = preload("res://scenes/BoardTile.tscn")
+@export var board_size: int = 8
+@export var tile_px: int = 64
+@export var light_color: Color = Color("#f0d9b5")
+@export var dark_color: Color  = Color("#b58863")
+@export var debug_mode: bool = true  # ← activar/desactivar debug
 
-@export var board_size: int = 8:
-	set(v):
-		v = max(1, v)
-		if board_size == v: return
-		board_size = v
-		if is_inside_tree():
-			_build_board() 
-		else: call_deferred("_build_board")
+const TILE_SCN := preload("res://scenes/Tile.tscn")
 
-@export var cell_size: int = 64:
-	set(v):
-		v = max(4, v)
-		if cell_size == v: return
-		cell_size = v
-		if is_inside_tree(): 
-			_relayout()
-		else: call_deferred("_relayout")
+var _selected_piece: Piece = null
+var _legal_moves: Array[Vector2i] = []
+var _tiles: Dictionary[Vector2i, Tile] = {} 
 
-@export var centered: bool = true:
-	set(v):
-		centered = v
-		if is_inside_tree():
-			_relayout()
-		else: call_deferred("_relayout")
+# Índice rápido para piezas (evita O(n) y ayuda a detectar inconsistencias)
+var _piece_index: Dictionary[Vector2i, Piece] = {}
 
-@onready var tiles_node: Node2D = $Tiles
 
 func _ready() -> void:
-	_build_board()
+	_generate_tiles()
+	_snap_all_pieces_to_grid()
+	_rebuild_index()
+	if debug_mode:
+		_validate_unique_coords()
+		_debug_dump_board()
+		_update_tiles_overlay()
+	queue_redraw()
 
-func _build_board() -> void:
-	if tiles_node == null:
-		push_error("Falta el hijo Node2D llamado 'Tiles' en Board.tscn")
-		return
-	if tile_scene == null:
-		push_error("tile_scene no asignado (PackedScene)")
-		return
+func _draw() -> void:
+	# Si querés un fondo liso detrás del tablero, dejá solo esto:
+	# draw_rect(Rect2(Vector2.ZERO, Vector2(board_size, board_size) * tile_px), Color("#e6e6e6"))
+	pass
 
-	# Limpia lo previo
-	for c in tiles_node.get_children():
-		c.queue_free()
+func _generate_tiles() -> void:
+	var tiles_node := $Tiles
 
-	var origin := _origin_offset()
-	var count := 0
-
-	# IMPORTANTE: usar range() garantiza la iteración 0..n-1
-	for row in range(board_size):
-		for col in range(board_size):
-			var t := tile_scene.instantiate()
-			tiles_node.add_child(t)
-			t.name = "Tile_%d_%d" % [col, row]
-			t.position = origin + Vector2(col * cell_size, row * cell_size)
-
-			# alterna: claro/oscuro por paridad
-			var dark: bool = (((row + col) & 1) == 1)
-
-			# 1) fijá props (disparan setters en BoardTile)
-			t.set("cell", Vector2i(col, row))
-			t.set("is_dark", dark)
-
-			# 2) aplicá tamaño (usa tu método si querés mantenerlo)
-			if t.has_method("setup"):
-				t.setup(Vector2i(col, row), dark, cell_size)
-			else:
-				t.set("size", cell_size)
-
-
-	print("Board creado: ", board_size, "x", board_size, " → ", count, " tiles")
-
-func _relayout() -> void:
-	if tiles_node == null:
-		return
-
-	var origin := _origin_offset()
-
+	# Borrar casillas anteriores (si re-generamos el tablero)
 	for child in tiles_node.get_children():
-		var t := child                       # alias
-		if not t.has_method("setup"):
-			continue
+		child.queue_free()
+	_tiles.clear()  # o: _tiles = {}
 
-		# lee la celda desde la tile
-		var cell = t.get("cell")
-		if typeof(cell) != TYPE_VECTOR2I:
-			continue
-		var cell_v: Vector2i = cell
-
-		# reposiciona según el nuevo cell_size / centrado
-		t.position = origin + Vector2(cell_v.x * cell_size, cell_v.y * cell_size)
-
-		# alternancia (o respeta is_dark si la tile lo sobreescribe)
-		var dark: bool = (((cell_v.x + cell_v.y) & 1) == 1)
-		var v = t.get("is_dark")
-		if typeof(v) == TYPE_BOOL:
-			dark = v
-
-		# aplica color y tamaño
-		t.set("is_dark", dark)               # dispara el setter de la tile
-		t.setup(cell_v, dark, cell_size)     # asegura size/colisión/visual
+	# Crear casillas nuevas
+	for y in board_size:
+		for x in board_size:
+			var tile := TILE_SCN.instantiate()
+			tiles_node.add_child(tile)
+			tile.coord = Vector2i(x, y)
+			tile.size_px = tile_px
+			tile.position = Vector2(x, y) * tile_px
+			tile.set_checker_color(((x + y) % 2) == 0, light_color, dark_color)
+			tile.clicked.connect(_on_tile_clicked)
+			_tiles[Vector2i(x, y)] = tile
 
 
+func _on_tile_clicked(coord: Vector2i) -> void:
+	if _selected_piece:
+		# mover si es legal
+		if coord in _legal_moves:
+			_move_piece_to(_selected_piece, coord)
+			_clear_selection()
+		else:
+			_clear_selection()
+	else:
+		# seleccionar pieza si hay alguna en esa casilla
+		var p : Piece = get_piece_at(coord)
+		if p:
+			_selected_piece = p
+			_legal_moves = p.get_moves(self) # Board se pasa como contexto
+			_highlight_moves(_legal_moves)
 
-func _origin_offset() -> Vector2:
-	return -Vector2(board_size * cell_size, board_size * cell_size) * 0.5 if centered else Vector2.ZERO
+
+
+func _move_piece_to(piece, coord: Vector2i) -> void:
+	# Captura simple si hay una pieza enemiga
+	var other := get_piece_at(coord)
+	if other and other.color != piece.color:
+		other.queue_free()
+
+	piece.coord = coord
+	piece.position = Vector2(coord) * tile_px + Vector2(tile_px/2, tile_px/2) # centro
+
+
+
+func _highlight_moves(moves: Array[Vector2i]) -> void:
+	for c in moves:
+		if _tiles.has(c):
+			_tiles[c].set_highlight(true)
+
+
+func _clear_selection() -> void:
+	_selected_piece = null
+	_legal_moves.clear()
+	for t in _tiles.values():
+		t.set_highlight(false)
+
+
+func move_piece_to(piece: Piece, coord: Vector2i) -> void:
+	var from := piece.coord
+	var other := get_piece_at(coord)
+
+	if debug_mode:
+		print("[MOVE] ", piece.name, " ", _color_str(piece.color), " de ", from, " -> ", coord," | destino ocupante=", (other.name + " " + _color_str(other.color)) if other else "None")
+
+	# Captura
+	if other and other.color != piece.color:
+		other.queue_free()
+		# quitar del índice
+		_piece_index.erase(coord)
+	elif other and other.color == piece.color:
+		if debug_mode:
+			push_warning("[MOVE] Casilla destino ocupada por MISMA pieza; no debería ser legal.")
+		return  # o manejar como movimiento ilegal según tu UX
+
+	# actualizar índice (from -> libre, coord -> piece)
+	_piece_index.erase(from)
+	_piece_index[coord] = piece
+
+	piece.coord = coord
+	piece.position = coord_to_position(coord)
+
+	if debug_mode:
+		_update_tiles_overlay()
+
+
+func get_piece_at(coord: Vector2i) -> Piece:
+	for child in $Pieces.get_children():
+		if child is Piece and child.coord == coord:
+			return child
+	return null
+
+
+# Helpers coord <-> posición local al Board
+func coord_to_position(coord: Vector2i) -> Vector2:
+	return Vector2(coord) * tile_px + Vector2(tile_px / 2, tile_px / 2)
+
+func position_to_coord(pos: Vector2) -> Vector2i:
+	var c := Vector2i(floor(pos.x / float(tile_px)), floor(pos.y / float(tile_px)))
+	c.x = clamp(c.x, 0, board_size - 1)
+	c.y = clamp(c.y, 0, board_size - 1)
+	return c
+
+
+func _snap_all_pieces_to_grid() -> void:
+	for child in $Pieces.get_children():
+		if child is Piece:
+			var local_pos := to_local(child.global_position)
+			var c: Vector2i = position_to_coord(local_pos)
+			child.coord = c
+			child.position = coord_to_position(c)
+
+
+#debug
+func _rebuild_index() -> void:
+	_piece_index.clear()
+	for child in $Pieces.get_children():
+		if child is Piece:
+			if _piece_index.has(child.coord):
+				if debug_mode:
+					push_error("[Board] Dos piezas en la misma coord " + str(child.coord) +
+							   " -> " + str(_piece_index[child.coord].name) + " y " + str(child.name))
+			_piece_index[child.coord] = child
+
+
+func _validate_unique_coords() -> void:
+	var seen := {}
+	for child in $Pieces.get_children():
+		if child is Piece:
+			if seen.has(child.coord):
+				push_error("[Board] DUPLICATE coord " + str(child.coord) + " ocupadas por " +
+						   str(seen[child.coord].name) + " y " + str(child.name))
+			else:
+				seen[child.coord] = child
+
+func _debug_dump_board() -> void:
+	print("--- BOARD DUMP ---")
+	for y in range(board_size):
+		var row := ""
+		for x in range(board_size):
+			var c := Vector2i(x, y)
+			var p : Piece = _piece_index.get(c, null)
+			if p:
+				var ch := "w" if p.color == Piece.PieceColor.WHITE else "b"
+				row += ch
+			else:
+				row += "."
+		print(str(y) + " | " + row)
+	print("------------------")
+
+
+func select_piece(p: Piece) -> void:
+	clear_selection()
+	_selected_piece = p
+	_legal_moves = p.get_moves(self)
+	_highlight_moves(_legal_moves)
+
+
+func clear_selection() -> void:
+	_selected_piece = null
+	_legal_moves.clear()
+	for t in _tiles.values():
+		t.set_highlight(false)
+
+
+func get_legal_moves() -> Array[Vector2i]:
+	return _legal_moves
+
+
+func _color_str(c: int) -> String:
+	return "WHITE" if c == Piece.PieceColor.WHITE else "BLACK"
+
+# Muestra en cada Tile el coord y el ocupante (requiere un Label opcional en Tile, ver abajo)
+func _update_tiles_overlay() -> void:
+	if not debug_mode:
+		return
+	for coord in _tiles.keys():
+		var tile: Tile = _tiles[coord]
+		var occ: Piece = get_piece_at(coord)
+		var txt := str(coord)
+		if occ:
+			txt += " | " + occ.name + " " + _color_str(occ.color)
+		tile.set_overlay_text(txt)

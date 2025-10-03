@@ -1,9 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://dydtj3ueh8ed3"]
+[gd_scene load_steps=3 format=3 uid="uid://dydtj3ueh8ed3"]
 
-[ext_resource type="Script" uid="uid://610sf876j1m8" path="res://scripts/board/TestBoard.gd" id="1_w8un3"]
+[ext_resource type="PackedScene" uid="uid://duj8w2c5p2aa4" path="res://scenes/Board.tscn" id="1_wen4y"]
+
+[sub_resource type="GDScript" id="GDScript_syogv"]
 
 [node name="Test" type="Node2D"]
-script = ExtResource("1_w8un3")
+script = SubResource("GDScript_syogv")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(576, 322)
+[node name="Board" parent="." instance=ExtResource("1_wen4y")]
