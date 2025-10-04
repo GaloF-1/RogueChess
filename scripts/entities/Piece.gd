@@ -7,6 +7,7 @@ enum PieceColor { WHITE, BLACK }
 @export var sprite_white: Texture2D
 @export var sprite_black: Texture2D
 @export var draggable: bool = true
+@export var initial_coord: Vector2i = Vector2i(-1, -1)  # Coordenadas iniciales manuales
 
 @onready var _sprite: Sprite2D = get_node_or_null("Sprite2D")
 @onready var _hitbox: Area2D = get_node_or_null("Hitbox")
@@ -15,78 +16,31 @@ enum PieceColor { WHITE, BLACK }
 var _dragging := false
 var _drag_offset: Vector2 = Vector2.ZERO
 var _drag_start_coord: Vector2i
-var _drag_current_coord: Vector2i = coord
-var _coord: Vector2i = Vector2i(0, 0)
-
-@export var coord: Vector2i:
+var coord: Vector2i = Vector2i(0, 0):  # Usamos setter directamente
 	get:
-		return _coord
+		return coord
 	set(value):
-		var old := _coord
-		_coord = value
+		var old = coord
+		coord = value
 		var board := _get_board()
 		if board:
-			board._on_piece_coord_changed(self, old, value)  # mantiene el índice
-			position = board.coord_to_position(value)        # snap visual
+			board._on_piece_coord_changed(self, old, value)  # Actualiza índice
+			position = board.coord_to_position(value)  # Snap visual
 
-
-func _start_drag() -> void:
-	var board: Board = _get_board()
-	if not board or board._moving or not draggable:
-		return
-	_dragging = true
-	_drag_start_coord = coord
-	_drag_current_coord = coord
-	_drag_offset = global_position - get_global_mouse_position()
-	z_index = 1000
-	if board:
-		board.select_piece(self)
-
-func _process(_delta: float) -> void:
-	if _dragging:
-		global_position = get_global_mouse_position() + _drag_offset
-		var board: Board = _get_board()
-		if board:
-			_drag_current_coord = board.position_to_coord(board.to_local(global_position))
-
-func _end_drag() -> void:
-	if not is_inside_tree() or not is_instance_valid(self) or process_mode == PROCESS_MODE_DISABLED:
-		_dragging = false
-		return
-	_dragging = false
-	z_index = 1
-	var board: Board = _get_board()
-	if not board:
-		position = board.coord_to_position(_drag_start_coord)
-		return
-
-	var target: Vector2i = _drag_current_coord
-	board._rebuild_index()  # Forzar sincronización antes de calcular movimientos
-	var occ_before: Piece = board.get_piece_at(target)
-	var legal := get_moves(board)
-	var is_legal := target in legal
-
-	print("[DROP] ", name, " ", _color_str(color), " from=", _drag_start_coord, " -> ", target,
-		  " | legal=", is_legal, " | occ_before=",(occ_before.name + " " + _color_str(occ_before.color)) if occ_before else "None")
-
-	if is_legal:
-		board.move_piece_to(self, target)
-	else:
-		coord = _drag_start_coord
-		position = board.coord_to_position(_drag_start_coord)
-
-	board.clear_selection()
-	if _hitbox:
-		_hitbox.monitoring = false  # Desactivar hitbox tras drop
-
+var _click_start_pos: Vector2 = Vector2.ZERO  # Posición inicial del clic
+const DRAG_THRESHOLD := 5.0  # Distancia mínima en píxeles para considerar arrastre
+var _is_clicking := false  # Bandera para rastrear si se está clicando
 
 func _ready() -> void:
-	print("Piece ", name, " color=", "WHITE" if color == PieceColor.WHITE else "BLACK", " coord=", coord)
+	print("[Piece] ", name, " color=", _color_str(color), " coord=", coord)
+	if initial_coord.x >= 0 and initial_coord.y >= 0:  # Si se definió manualmente, usamos esa coord
+		coord = initial_coord
 	y_sort_enabled = true
 	z_index = 1
 	_apply_sprite()
 	_snap_to_board()
 	_setup_hitbox()
+	set_process_input(true)  # Activamos _input para manejar release y movimiento
 
 func _setup_hitbox() -> void:
 	if _hitbox == null:
@@ -95,24 +49,80 @@ func _setup_hitbox() -> void:
 	var board: Board = _get_board()
 	if _shape and board:
 		_shape.size = Vector2(board.tile_px, board.tile_px)
-	# Conectar input del Area2D
 	if not _hitbox.input_event.is_connected(_on_hitbox_input):
 		_hitbox.input_event.connect(_on_hitbox_input)
-
 
 func _on_hitbox_input(viewport, event, shape_idx) -> void:
 	if not draggable:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			_start_drag()
+			_is_clicking = true
+			_click_start_pos = get_global_mouse_position()  # Guardamos la posición inicial
 		else:
-			_end_drag()
+			_is_clicking = false
+			if not _dragging:
+				# Si no se ha iniciado el arrastre, consideramos un clic
+				var board := _get_board()
+				if board and _click_start_pos.distance_to(get_global_mouse_position()) < DRAG_THRESHOLD:
+					print("[Piece] Clic detectado en ", name, " en coord ", coord)
+					board.select_piece(self)
 
+func _input(event: InputEvent) -> void:
+	if _is_clicking and event is InputEventMouseMotion:
+		# Si el ratón se mueve más de DRAG_THRESHOLD mientras se presiona, inicia arrastre
+		if _click_start_pos.distance_to(get_global_mouse_position()) >= DRAG_THRESHOLD and not _dragging:
+			print("[Piece] Iniciando arrastre en ", name, " desde ", _click_start_pos)
+			_start_drag()
 
-func _color_str(c: int) -> String:
-	return "WHITE" if c == PieceColor.WHITE else "BLACK"
+	if _dragging and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		_end_drag()
 
+func _start_drag() -> void:
+	var board: Board = _get_board()
+	if not board or board._moving or not draggable or not _is_clicking:
+		return
+	_dragging = true
+	_is_clicking = false  # Detenemos el conteo de clic
+	_drag_start_coord = coord
+	_drag_offset = global_position - get_global_mouse_position()
+	z_index = 1000
+	if board:
+		board.select_piece(self)
+
+func _process(delta: float) -> void:
+	if _dragging:
+		global_position = get_global_mouse_position() + _drag_offset
+
+func _end_drag() -> void:
+	if not _dragging:
+		return
+	_dragging = false
+	z_index = 1
+	var board: Board = _get_board()
+	if not board:
+		position = board.coord_to_position(_drag_start_coord)
+		return
+
+	var target: Vector2i = board.position_to_coord(board.to_local(global_position))
+	var legal_moves := get_moves(board)
+	var is_legal := target in legal_moves
+
+	if board.debug_mode:
+		var occ_before = board.get_piece_at(target)
+		print("[DROP] ", name, " ", _color_str(color), " from=", _drag_start_coord, " -> ", target,
+			  " | legal=", is_legal, " | occ_before=", (occ_before.name + " " + _color_str(occ_before.color)) if occ_before else "None")
+
+	if is_legal:
+		board.move_piece_to(self, target)
+	else:
+		coord = _drag_start_coord
+		position = board.coord_to_position(_drag_start_coord)
+
+	board.clear_selection()
+
+func get_moves(board: Board) -> Array[Vector2i]:
+	return []
 
 func _apply_sprite() -> void:
 	if _sprite == null:
@@ -144,5 +154,5 @@ func _get_board() -> Board:
 		n = n.get_parent()
 	return null
 
-func get_moves(board: Board) -> Array[Vector2i]:
-	return []  # virtual, las hijas implementan
+func _color_str(c: int) -> String:
+	return "WHITE" if c == PieceColor.WHITE else "BLACK"
