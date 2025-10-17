@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://cunning-king-scene"]
+
+[ext_resource type="Script" path="res://scripts/entities/King.gd" id="1_king_gd"]
+[ext_resource type="Texture2D" uid="uid://h3a7w3vj3v3v3" path="res://assets/Chess Pieces/king_white.png" id="2_king_white_tex"]
+[ext_resource type="Texture2D" uid="uid://i4b8x4w4x4x4x" path="res://assets/Chess Pieces/king_black.png" id="3_king_black_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_king"]
+
+[node name="King" type="Node2D"]
+z_index = 1
+script = ExtResource("1_king_gd")
+sprite_white = ExtResource("2_king_white_tex")
+sprite_black = ExtResource("3_king_black_tex")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_king")
