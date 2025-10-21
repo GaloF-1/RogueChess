@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dydtj3ueh8ed3"]
 
-[ext_resource type="PackedScene" uid="uid://duj8w2c5p2aa4" path="res://scenes/Board.tscn" id="1_wen4y"]
+[ext_resource type="PackedScene" uid="uid://duj8w2c5p2aa4" path="res://scenes/chess/Board.tscn" id="1_wen4y"]
 
 [sub_resource type="GDScript" id="GDScript_syogv"]
 

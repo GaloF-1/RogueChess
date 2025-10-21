@@ -7,7 +7,7 @@ class_name Board
 @export var dark_color: Color  = Color("#b58863")
 @export var debug_mode: bool = true
 
-const TILE_SCN := preload("res://scenes/Tile.tscn")
+const TILE_SCN := preload("res://scenes/chess/Tile.tscn")
 
 var _selected_piece: Piece = null
 var _legal_moves: Array[Vector2i] = []

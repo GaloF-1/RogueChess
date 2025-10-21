@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4w7w7d7g3v7x"]
+
+[ext_resource type="Script" uid="uid://bi2o82ayadcaf" path="res://scripts/tests/TestShop.gd" id="1_a24ag"]
+[ext_resource type="PackedScene" uid="uid://b7naq2v34c6c3" path="res://scenes/ui/Tienda/ShopUI.tscn" id="2_b24ag"]
+
+[node name="TestShop" type="Node"]
+script = ExtResource("1_a24ag")
+
+[node name="ShopUI" parent="." instance=ExtResource("2_b24ag")]

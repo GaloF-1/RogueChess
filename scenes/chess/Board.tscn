@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://duj8w2c5p2aa4"]
 
 [ext_resource type="Script" uid="uid://dtusw62eh5yo" path="res://scripts/board/Board.gd" id="1_hs2ul"]
-[ext_resource type="PackedScene" uid="uid://d12cqs1lc0dnf" path="res://scenes/Pawn.tscn" id="2_66b1s"]
-[ext_resource type="PackedScene" uid="uid://cunning-rook-scene" path="res://scenes/Rook.tscn" id="3_rook_tscn"]
-[ext_resource type="PackedScene" uid="uid://cunning-knight-scene" path="res://scenes/Knight.tscn" id="4_knight_tscn"]
-[ext_resource type="PackedScene" uid="uid://cunning-bishop-scene" path="res://scenes/Bishop.tscn" id="5_bishop_tscn"]
-[ext_resource type="PackedScene" uid="uid://cunning-queen-scene" path="res://scenes/Queen.tscn" id="6_queen_tscn"]
-[ext_resource type="PackedScene" uid="uid://cunning-king-scene" path="res://scenes/King.tscn" id="7_king_tscn"]
+[ext_resource type="PackedScene" uid="uid://d12cqs1lc0dnf" path="res://scenes/chess/Pawn.tscn" id="2_66b1s"]
+[ext_resource type="PackedScene" path="res://scenes/chess/Rook.tscn" id="3_rook_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/chess/Knight.tscn" id="4_knight_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/chess/Bishop.tscn" id="5_bishop_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/chess/Queen.tscn" id="6_queen_tscn"]
+[ext_resource type="PackedScene" path="res://scenes/chess/King.tscn" id="7_king_tscn"]
 
 [node name="Board" type="Node2D"]
 script = ExtResource("1_hs2ul")
