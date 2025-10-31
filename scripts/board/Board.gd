@@ -23,12 +23,31 @@ func _ready() -> void:
 		if child is Piece and child.initial_coord.x < 0:
 			_snap_all_pieces_to_grid()
 	_rebuild_index()
+	add_to_group("board")
 	if debug_mode:
 		_validate_unique_coords()
 		_debug_dump_board()
 		_update_tiles_overlay()
 		print("[TURN] Turno inicial: ", _color_str(current_turn))
 	queue_redraw()
+
+func place_new_piece(blueprint: PieceBlueprint, coord: Vector2i) -> void:
+	if not blueprint:
+		push_error("[Board] Se intentó colocar una pieza con un blueprint nulo.")
+		return
+
+	var new_piece := blueprint.instantiate()
+	if new_piece:
+		var pieces_node = $Pieces
+		if not pieces_node:
+			push_error("[Board] No se encuentra el nodo 'Pieces'.")
+			return
+			
+		pieces_node.add_child(new_piece)
+		new_piece.coord = coord # El setter de la pieza se encarga de la posición y el índice
+		print("[Board] Pieza nueva '", new_piece.name, "' colocada en ", coord)
+	else:
+		push_error("[Board] No se pudo instanciar la pieza desde el blueprint.")
 
 func _draw() -> void:
 	pass  # Fondo opcional si lo necesitas
@@ -218,3 +237,9 @@ func _color_str(c: int) -> String:
 
 func get_legal_moves() -> Array[Vector2i]:
 	return _legal_moves
+
+func clear_board() -> void:
+	for piece in $Pieces.get_children():
+		piece.queue_free()
+	_piece_index.clear()
+	print("[Board] Tablero limpiado (piezas e índice).")

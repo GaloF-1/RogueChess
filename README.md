@@ -6,8 +6,8 @@
 
 ## ✅ Objetivos de la Demo
 - [ ] Run jugable corta de **3 rondas**
-- [ ] **Tienda** (3 ofertas + reroll)
-- [ ] **Compra** desde blueprints y **colocación** en tablero
+- [x] **Tienda** (3 ofertas + reroll)
+- [x] **Compra** desde blueprints y **colocación** en tablero
 - [ ] **Combate automático** básico (turnos alternados, reglas por pieza)
 - [ ] **Victoria/Derrota** + **recompensa** de oro por ronda
 - [ ] **HUD** minimal (oro, ronda, botones de fase/tienda)
@@ -22,8 +22,8 @@
 **Objetivo:** dejar el proyecto listo para iterar.
 - [x] Crear repo y proyecto **Godot 4.x**
 - [x] Estructura carpetas: `scenes/`, `scripts/`, `ui/`, `assets/placeholder/`, `core/`, `combat/`, `shop/`
-- [ ] Stubs de clases: `Run`, `Round`, `Board`, `BoardTile`, `Player`, `Shop`, `ShopOffer`, `Piece` (+subclases), `PieceBlueprint`, `Enemy`, `Behavior`, `Effect`
-- [ ] Enums: `PieceType`, `Rarity`, `TileState`, `RunState`
+- [x] Stubs de clases: `Run`, `Round`, `Board`, `BoardTile`, `Player`, `Shop`, `ShopOffer`, `Piece` (+subclases), `PieceBlueprint`, `Enemy`, `Behavior`, `Effect`
+- [x] Enums: `PieceType`, `Rarity`, `TileState`, `RunState`
 **DoD**
 - [ ] Escena principal corre con botón **Start Run**
 
@@ -31,25 +31,25 @@
 
 ### Sprint 1 — Modelo + Tablero Base _(29 sep – 5 oct)_
 **Objetivo:** tablero operativo y piezas colocables (sin combate).
-- [ ] `Board`: grilla visible, estados (vacía/ocupada)
-- [ ] Colocar/retirar `Piece` en el tablero 
-- [ ] `legalMoves()` para **Peón**, **Torre**, **Caballo** (resto stub)
+- [x] `Board`: grilla visible, estados (vacía/ocupada)
+- [x] Colocar/retirar `Piece` en el tablero 
+- [x] `legalMoves()` para **Peón**, **Torre**, **Caballo** (resto stub)
 - [ ] HUD básico: **oro** + **inventario**
 **DoD**
-- [ ] Arrastrar/colocar piezas y devolverlas
-- [ ] `legalMoves()` pinta casillas válidas
+- [x] Arrastrar/colocar piezas y devolverlas
+- [x] `legalMoves()` pinta casillas válidas
 
 ---
 
 ### Sprint 2 — Tienda y Economía _(6 – 12 oct)_
 **Objetivo:** comprar piezas a partir de blueprints.
-- [ ] `PieceBlueprint` con `base_hp/atk/range` y `instantiate()`
-- [ ] `Shop`: n ofertas, `reroll(cost)`, precios por `Rarity`
-- [ ] `Player.buy()`: descuenta oro, agrega al inventario, valida fondos
+- [x] `PieceBlueprint` con `base_hp/atk/range` y `instantiate()`
+- [x] `Shop`: n ofertas, `reroll(cost)`, precios por `Rarity`
+- [x] `Player.buy()`: descuenta oro, agrega al inventario, valida fondos
 - [ ] UI tienda: lista de ofertas, **Comprar** y **Reroll**
 **DoD**
-- [ ] Inventario se actualiza al comprar
-- [ ] Reroll consume oro y renueva ofertas
+- [x] Inventario se actualiza al comprar
+- [x] Reroll consume oro y renueva ofertas
 
 ---
 
@@ -67,12 +67,12 @@
 
 ### Sprint 4 — Combate Automático _(20 – 26 oct)_
 **Objetivo:** combate funcional básico.
-- [ ] Sistema de **turnos** (alternado / iniciativa simple)
-- [ ] Movimiento/ataque según `PieceType` (mín.: Peón, Torre, Caballo)
+- [x] Sistema de **turnos** (alternado / iniciativa simple)
+- [x] Movimiento/ataque según `PieceType` (mín.: Peón, Torre, Caballo)
 - [ ] `Enemy` + `Behavior` **agresivo** simple
 - [ ] `Board.isVictory()` (condición de fin)
 **DoD**
-- [ ] Piezas **se mueven y atacan** hasta resultado
+- [x] Piezas **se mueven y atacan** hasta resultado
 - [ ] `Round.resolve()` avanza a la siguiente ronda
 
 ---
@@ -139,9 +139,9 @@
 ## 🧪 Pruebas mínimas
 
 **Unitarias**
-- [ ] `legalMoves()` por tipo
-- [ ] `Shop.reroll()` y distribución de `Rarity`
-- [ ] `Player.buy()` sin fondos
+- [x] `legalMoves()` por tipo
+- [x] `Shop.reroll()` y distribución de `Rarity`
+- [x] `Player.buy()` sin fondos
 - [ ] `Effect.apply/remove`
 
 **Integración**
@@ -154,4 +154,3 @@
 ---
 
 ## 🗃️ Estructura de Carpetas (sugerida)
-
