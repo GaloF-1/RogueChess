@@ -14,8 +14,8 @@ var _is_dragging := false
 var _ghost_piece: Node2D = null
 
 func _ready() -> void:
-	buy_button.pressed.disconnect(_on_buy_pressed)
-	buy_button.visible = false
+	#buy_button.visible = false
+	pass
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -83,6 +83,3 @@ func setup(bp: PieceBlueprint, s: Shop) -> void:
 	name_label.text = bp.piece_name
 	cost_label.text = str(bp.cost) + " Oro"
 	stats_label.text = "HP: %d | ATK: %d | DEF: %d" % [bp.max_hp, bp.attack_damage, bp.defense]
-
-func _on_buy_pressed() -> void:
-	pass

@@ -1,10 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://b7naq2v34c6c3"]
+[gd_scene load_steps=10 format=3 uid="uid://b7naq2v34c6c3"]
 
 [ext_resource type="Script" uid="uid://dn6f4mhg412fu" path="res://scripts/ui/ShopUI.gd" id="1_gx0hi"]
 [ext_resource type="PackedScene" uid="uid://c6w8fa71e3j2a" path="res://scenes/ui/Tienda/ShopOfferCard.tscn" id="2_d2b5w"]
 [ext_resource type="Script" uid="uid://cqm8p5ingiqnx" path="res://scripts/shop/Shop.gd" id="3_v6fsn"]
 [ext_resource type="Script" uid="uid://clcavvlgh41d6" path="res://scripts/entities/PieceBlueprint.gd" id="4_ho8c7"]
 [ext_resource type="Resource" uid="uid://c3hmbqitoyus6" path="res://assets/blueprints/pawn_blueprint.tres" id="5_xkwph"]
+[ext_resource type="Resource" path="res://assets/blueprints/knight_blueprint.tres" id="6_knight"]
+[ext_resource type="Resource" path="res://assets/blueprints/bishop_blueprint.tres" id="7_bishop"]
+[ext_resource type="Resource" path="res://assets/blueprints/test_rook_blueprint.tres" id="8_rook"]
+[ext_resource type="Resource" path="res://assets/blueprints/queen_blueprint.tres" id="9_queen"]
 
 [node name="ShopUI" type="Control"]
 layout_mode = 3
@@ -66,4 +70,4 @@ alignment = 1
 
 [node name="Shop" type="Node" parent="."]
 script = ExtResource("3_v6fsn")
-all_blueprints = Array[ExtResource("4_ho8c7")]([ExtResource("5_xkwph")])
+all_blueprints = Array[ExtResource("4_ho8c7")]([ExtResource("5_xkwph"), ExtResource("6_knight"), ExtResource("7_bishop"), ExtResource("8_rook"), ExtResource("9_queen")])

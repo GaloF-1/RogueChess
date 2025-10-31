@@ -8,7 +8,7 @@ signal combat_ended(winner: Piece.PieceColor)
 @export var light_color: Color = Color("#f0d9b5")
 @export var dark_color: Color = Color("#b58863")
 @export var debug_mode: bool = true
-@export var player_rows: int = 3
+@export var player_rows: int = 2
 
 const TILE_SCN := preload("res://scenes/chess/Tile.tscn")
 
