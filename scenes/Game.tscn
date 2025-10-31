@@ -1,0 +1,26 @@
+[gd_scene load_steps=9 format=3 uid="uid://cwkspysxreuo2"]
+
+[ext_resource type="Script" uid="uid://buo5jt3qy5nuu" path="res://scripts/core/GameManager.gd" id="1"]
+[ext_resource type="Script" uid="uid://liptlb8r1fuo" path="res://scenes/Game.gd" id="2"]
+[ext_resource type="PackedScene" uid="uid://duj8w2c5p2aa4" path="res://scenes/chess/Board.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://b7naq2v34c6c3" path="res://scenes/ui/Tienda/ShopUI.tscn" id="4"]
+[ext_resource type="Script" uid="uid://clcavvlgh41d6" path="res://scripts/entities/PieceBlueprint.gd" id="4_400sg"]
+[ext_resource type="Resource" uid="uid://c3hmbqitoyus6" path="res://assets/blueprints/pawn_blueprint.tres" id="5"]
+[ext_resource type="Resource" path="res://assets/blueprints/test_rook_blueprint.tres" id="6"]
+[ext_resource type="Resource" path="res://assets/blueprints/test_king_blueprint.tres" id="7"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("2")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("1")
+king_blueprint = ExtResource("7")
+enemy_blueprints = Array[ExtResource("4_400sg")]([ExtResource("5"), ExtResource("6"), ExtResource("7")])
+
+[node name="Board" parent="." instance=ExtResource("3")]
+
+[node name="ShopUI" parent="." instance=ExtResource("4")]
+offset_left = 774.0
+offset_top = 233.0
+offset_right = 774.0
+offset_bottom = 233.0

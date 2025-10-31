@@ -17,9 +17,9 @@ func _ready() -> void:
 	print("[TestScene] Shop blueprints configured.")
 
 	# 3. Give the player some gold for testing
-	if not PlayerLoad.has_meta("initialized_for_test"):
-		PlayerLoad.gold = 50
-		PlayerLoad.set_meta("initialized_for_test", true)
+	if not Player.has_meta("initialized_for_test"):
+		Player.gold = 50
+		Player.set_meta("initialized_for_test", true)
 	print("[TestScene] Player gold set to 50 for testing.")
 
 	# 4. Generate initial offers

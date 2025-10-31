@@ -1,4 +1,3 @@
-class_name Player
 extends Node
 
 signal gold_changed(new_gold_amount: int)

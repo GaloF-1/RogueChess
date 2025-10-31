@@ -13,9 +13,9 @@ func _ready() -> void:
 	shop.all_blueprints = [pawn_bp, rook_bp, king_bp]
 	
 	# Damos algo de oro al jugador para que pueda comprar
-	if not PlayerLoad.has_meta("initialized_for_test"):
-		PlayerLoad.gold = 50
-		PlayerLoad.set_meta("initialized_for_test", true)
+	if not Player.has_meta("initialized_for_test"):
+		Player.gold = 50
+		Player.set_meta("initialized_for_test", true)
 	
 	# Forzamos a la tienda a generar las ofertas con los blueprints que le dimos
 	shop.generate_offers()

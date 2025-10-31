@@ -14,14 +14,15 @@ extends Control
 
 
 func _ready() -> void:
+	add_to_group("shop_ui")
 	# Conectar señales para que la UI reaccione a los cambios
 	if shop:
 		shop.offers_generated.connect(_on_offers_generated)
 	
-	if PlayerLoad:
-		PlayerLoad.gold_changed.connect(_on_gold_changed)
+	if Player:
+		Player.gold_changed.connect(_on_gold_changed)
 		# Actualizar el oro inicial
-		_on_gold_changed(PlayerLoad.gold)
+		_on_gold_changed(Player.gold)
 	
 	if reroll_button:
 		reroll_button.pressed.connect(_on_reroll_pressed)

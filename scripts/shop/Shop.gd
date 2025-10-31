@@ -36,7 +36,7 @@ func generate_offers() -> void:
 
 # Intenta hacer un reroll, gastando oro del jugador
 func reroll() -> void:
-	if PlayerLoad.spend_gold(reroll_cost):
+	if Player.spend_gold(reroll_cost):
 		print("[Shop] Reroll exitoso.")
 		generate_offers()
 	else:
@@ -48,7 +48,7 @@ func purchase(blueprint: PieceBlueprint) -> PieceBlueprint:
 		push_error("[Shop] Se intentó comprar un blueprint que no está en las ofertas actuales.")
 		return null
 
-	if PlayerLoad.spend_gold(blueprint.cost):
+	if Player.spend_gold(blueprint.cost):
 		print("[Shop] Compra exitosa de: ", blueprint.piece_name)
 		# Eliminamos la oferta comprada de la lista actual
 		current_offers.erase(blueprint)
