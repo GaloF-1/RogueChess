@@ -80,6 +80,8 @@ func setup(bp: PieceBlueprint, s: Shop) -> void:
 	self.shop = s
 	
 	piece_texture.texture = bp.texture
+	piece_texture.expand_mode = TextureRect.EXPAND_FIT_WIDTH
+	piece_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	name_label.text = bp.piece_name
 	cost_label.text = str(bp.cost) + " Oro"
 	stats_label.text = "HP: %d | ATK: %d | DEF: %d" % [bp.max_hp, bp.attack_damage, bp.defense]

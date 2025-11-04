@@ -37,7 +37,9 @@ func _ready() -> void:
 		get_tree().quit()
 		return
 		
+	_board.enemy_blueprints = enemy_blueprints
 	_board.combat_ended.connect(_on_combat_ended)
+	_shop_ui.next_round_requested.connect(Callable(self, "transition_to_phase").bind(GamePhase.COMBAT))
 	
 	start_new_run()
 
@@ -71,31 +73,9 @@ func _setup_round(round_num: int) -> void:
 			_board.resize_board(3)
 			_board.place_new_piece(king_blueprint, Vector2i(1, 2), Piece.PieceColor.WHITE)
 
-	_spawn_enemies_for_round(round_num)
+	_board.spawn_enemies(round_num)
+	_board.finalize_round_setup()
 	_board.start_combat()
-
-func _spawn_enemies_for_round(round_num: int) -> void:
-	_board.clear_enemies()
-	
-	var num_enemies: int
-	match round_num:
-		1: num_enemies = randi_range(1, 2)
-		2: num_enemies = randi_range(2, 4)
-		_: num_enemies = randi_range(3, 5)
-
-	print("Spawneando %d enemigos para la ronda %d." % [num_enemies, round_num])
-	for i in range(num_enemies):
-		if enemy_blueprints.is_empty():
-			push_warning("No hay blueprints de enemigos configurados.")
-			break
-			
-		var bp = enemy_blueprints.pick_random()
-		var spawn_coord = _board.get_random_empty_enemy_square()
-		
-		if spawn_coord != Vector2i(-1, -1):
-			_board.place_new_piece(bp, spawn_coord, Piece.PieceColor.BLACK)
-		else:
-			break
 
 func _on_combat_ended(winner: Piece.PieceColor) -> void:
 	if winner == Piece.PieceColor.WHITE:

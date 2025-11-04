@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cwkspysxreuo2"]
+[gd_scene load_steps=12 format=3 uid="uid://cwkspysxreuo2"]
 
 [ext_resource type="Script" uid="uid://buo5jt3qy5nuu" path="res://scripts/core/GameManager.gd" id="1"]
 [ext_resource type="Script" uid="uid://liptlb8r1fuo" path="res://scenes/Game.gd" id="2"]
@@ -8,6 +8,9 @@
 [ext_resource type="Resource" uid="uid://c3hmbqitoyus6" path="res://assets/blueprints/pawn_blueprint.tres" id="5"]
 [ext_resource type="Resource" path="res://assets/blueprints/test_rook_blueprint.tres" id="6"]
 [ext_resource type="Resource" uid="uid://bfxo7g3r4fbou" path="res://assets/blueprints/test_king_blueprint.tres" id="7"]
+[ext_resource type="Resource" path="res://assets/blueprints/queen_blueprint.tres" id="7_3xj3m"]
+[ext_resource type="Resource" path="res://assets/blueprints/bishop_blueprint.tres" id="8_mcffj"]
+[ext_resource type="Resource" path="res://assets/blueprints/knight_blueprint.tres" id="9_2rd6h"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("2")
@@ -15,18 +18,18 @@ script = ExtResource("2")
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("1")
 king_blueprint = ExtResource("7")
-enemy_blueprints = Array[ExtResource("4_400sg")]([ExtResource("5"), ExtResource("6"), ExtResource("7")])
+enemy_blueprints = Array[ExtResource("4_400sg")]([ExtResource("5"), ExtResource("6"), ExtResource("7_3xj3m"), ExtResource("8_mcffj"), ExtResource("9_2rd6h")])
 
 [node name="Board" parent="." instance=ExtResource("3")]
-position = Vector2(518, 326)
+position = Vector2(-1, -2)
 
 [node name="ShopUI" parent="." instance=ExtResource("4")]
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-offset_left = 844.0
-offset_top = 146.0
-offset_right = 844.0
-offset_bottom = 146.0
-grow_horizontal = 1
-grow_vertical = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 813.0
+offset_top = 340.0
+offset_right = 813.0
+offset_bottom = 340.0
+grow_horizontal = 0

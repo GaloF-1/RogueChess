@@ -3,7 +3,11 @@ class_name Piece
 
 enum PieceColor { WHITE, BLACK }
 
-@export var color: PieceColor = PieceColor.WHITE
+@export var color: PieceColor = PieceColor.WHITE:
+	set(value):
+		if color != value:
+			color = value
+			_apply_sprite()
 @export var sprite_white: Texture2D
 @export var sprite_black: Texture2D
 @export var draggable: bool = true

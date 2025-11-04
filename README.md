@@ -46,7 +46,7 @@
 - [x] `PieceBlueprint` con `base_hp/atk/range` y `instantiate()`
 - [x] `Shop`: n ofertas, `reroll(cost)`, precios por `Rarity`
 - [x] `Player.buy()`: descuenta oro, agrega al inventario, valida fondos
-- [ ] UI tienda: lista de ofertas, **Comprar** y **Reroll**
+- [x] UI tienda: lista de ofertas, **Comprar** y **Reroll**
 **DoD**
 - [x] Inventario se actualiza al comprar
 - [x] Reroll consume oro y renueva ofertas
@@ -58,7 +58,7 @@
 - [ ] `Round.start()` / `Round.resolve()`
 - [ ] Estados de fase en UI y navegación
 - [ ] `Run.nextRound()`: tamaño prog. **5×5 → 6×6 → 7×7**
-- [ ] Recompensa de oro fija por ronda
+- [x] Recompensa de oro fija por ronda
 **DoD**
 - [ ] Completar **2 rondas** con transición de fases
 - [ ] Resolución de combate placeholder (si aún no está el real)

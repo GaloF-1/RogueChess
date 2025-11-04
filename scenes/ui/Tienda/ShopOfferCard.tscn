@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c6w8fa71e3j2a"]
+[gd_scene load_steps=3 format=3 uid="uid://c6w8fa71e3j2a"]
 
 [ext_resource type="Script" uid="uid://dho4vwfv710vi" path="res://scripts/ui/ShopOfferCard.gd" id="1_abcde"]
+[ext_resource type="Texture2D" uid="uid://w3qnndv40efn" path="res://assets/Chess Pieces/pawn_white.png" id="2_337gt"]
 
 [node name="ShopOfferCard" type="PanelContainer"]
 custom_minimum_size = Vector2(150, 200)
@@ -15,21 +16,23 @@ theme_override_constants/margin_bottom = 10
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-
-[node name="PieceTexture" type="TextureRect" parent="MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-expand_mode = 1
-stretch_mode = 5
+alignment = 1
 
 [node name="NameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Nombre Pieza"
 horizontal_alignment = 1
+
+[node name="PieceTexture" type="TextureRect" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+texture = ExtResource("2_337gt")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -39,10 +42,6 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "HP: 10 | ATK: 2 | DEF: 0"
 horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 3
 
 [node name="CostLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true

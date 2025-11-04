@@ -9,8 +9,4 @@ func _ready() -> void:
 	var board_size_pixels = Vector2(board.board_size * board.tile_px, board.board_size * board.tile_px)
 	board.position = (screen_size - board_size_pixels) / 2
 
-	# Position the shop UI
-	var padding = 130
-	shop_ui.position = Vector2(board.position.x + board_size_pixels.x + padding, board.position.y)
-
 	print("Escena principal del juego 'Game.tscn' cargada.")

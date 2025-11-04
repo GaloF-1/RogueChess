@@ -4,13 +4,14 @@ signal gold_changed(new_gold_amount: int)
 
 @export var starting_gold: int = 10
 
+var _gold: int
 var gold: int:
 	get:
-		return gold
+		return _gold
 	set(value):
-		if gold != value:
-			gold = value
-			gold_changed.emit(gold)
+		if _gold != value:
+			_gold = value
+			gold_changed.emit(_gold)
 
 func _ready() -> void:
 	self.gold = starting_gold

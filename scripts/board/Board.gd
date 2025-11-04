@@ -24,9 +24,11 @@ var arrangement_color: Piece.PieceColor
 
 var _player: Player
 
+var enemy_blueprints: Array[PieceBlueprint] = []
+
 func _ready() -> void:
-	if Engine.has_singleton("Player"):
-		_player = Player
+	_player = Player
+	print("[DEBUG] Board: Referencia al singleton 'Player' obtenida.")
 
 	_generate_tiles()
 	_rebuild_index()
@@ -35,6 +37,40 @@ func _ready() -> void:
 		_validate_unique_coords()
 		_debug_dump_board()
 		_update_tiles_overlay()
+
+func setup_next_round(round_num: int) -> void:
+	print("[Board] Configurando la siguiente ronda.")
+	clear_enemies()
+	current_turn = Piece.PieceColor.WHITE
+
+	spawn_enemies(round_num)
+
+	_rebuild_index()
+	if debug_mode:
+		_update_tiles_overlay()
+
+func spawn_enemies(round_num: int) -> void:
+	var num_enemies: int
+	match round_num:
+		1: num_enemies = randi_range(1, 2)
+		2: num_enemies = randi_range(2, 4)
+		_: num_enemies = randi_range(3, 5)
+
+	print("[Board] Spawneando %d enemigos para la ronda %d." % [num_enemies, round_num])
+	for i in range(num_enemies):
+		if enemy_blueprints.is_empty():
+			push_warning("No hay blueprints de enemigos configurados en el tablero.")
+			break
+			
+		var bp = enemy_blueprints.pick_random()
+		var spawn_coord = get_random_empty_enemy_square()
+		
+		if spawn_coord != Vector2i(-1, -1):
+			place_new_piece(bp, spawn_coord, Piece.PieceColor.BLACK)
+		else:
+			break # No more space
+
+
 
 func resize_board(new_size: int) -> void:
 	board_size = new_size
@@ -64,11 +100,18 @@ func move_piece_to(piece: Piece, target_coord: Vector2i) -> void:
 			_moving = false
 			return
 		else:
-			# Recompensa de oro al capturar
-			if _player and occupying_piece.blueprint:
-				print("[Board] Jugador recibe ", occupying_piece.blueprint.cost, " de oro por eliminar a ", occupying_piece.name)
-				_player.add_gold(occupying_piece.blueprint.cost)
-			
+			# Lógica de recompensa de oro al capturar
+			var gold_to_add = 0
+			if occupying_piece is Pawn: gold_to_add = 1
+			elif occupying_piece is Knight: gold_to_add = 3
+			elif occupying_piece is Bishop: gold_to_add = 3
+			elif occupying_piece is Rook: gold_to_add = 5
+			elif occupying_piece is Queen: gold_to_add = 9
+
+			if _player and gold_to_add > 0:
+				print("[Board] Jugador recibe ", gold_to_add, " de oro por eliminar a ", occupying_piece.name)
+				_player.add_gold(gold_to_add)
+
 			_piece_index.erase(occupying_piece.coord)
 			occupying_piece.queue_free()
 
@@ -134,10 +177,10 @@ func is_valid_arrangement_square(coord: Vector2i) -> bool:
 func _check_victory_condition() -> void:
 	var white_pieces_count = 0
 	var black_pieces_count = 0
-	for piece in $Pieces.get_children():
-		if piece is Piece:
-			if piece.color == Piece.PieceColor.WHITE: white_pieces_count += 1
-			else: black_pieces_count += 1
+	for piece in _piece_index.values():
+		if not is_instance_valid(piece): continue
+		if piece.color == Piece.PieceColor.WHITE: white_pieces_count += 1
+		else: black_pieces_count += 1
 	
 	if white_pieces_count == 0: combat_ended.emit(Piece.PieceColor.BLACK)
 	elif black_pieces_count == 0: combat_ended.emit(Piece.PieceColor.WHITE)
@@ -208,6 +251,11 @@ func _update_tiles_overlay() -> void:
 		var txt := str(coord)
 		if occ: txt += " | " + occ.name + " " + _color_str(occ.color)
 		tile.set_overlay_text(txt)
+
+func finalize_round_setup() -> void:
+	_rebuild_index()
+	if debug_mode:
+		_update_tiles_overlay()
 
 func _color_str(c: int) -> String:
 	return "WHITE" if c == Piece.PieceColor.WHITE else "BLACK"
