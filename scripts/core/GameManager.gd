@@ -29,6 +29,10 @@ var _current_phase: GamePhase:
 			_current_phase = value
 			phase_changed.emit(_current_phase)
 
+# --- Combat State ---
+var current_attacker: Piece = null
+var current_defender: Piece = null
+
 func _ready() -> void:
 	_player = Player
 
@@ -39,6 +43,7 @@ func _ready() -> void:
 		
 	_board.enemy_blueprints = enemy_blueprints
 	_board.combat_ended.connect(_on_combat_ended)
+	_board.combat_initiated.connect(_on_combat_initiated)
 	_shop_ui.next_round_requested.connect(Callable(self, "transition_to_phase").bind(GamePhase.COMBAT))
 	
 	start_new_run()
@@ -84,3 +89,37 @@ func _on_combat_ended(winner: Piece.PieceColor) -> void:
 	else:
 		print("--- DERROTA ---")
 		get_tree().quit()
+
+func _on_combat_initiated(attacker: Piece, defender: Piece) -> void:
+	print("GameManager: Combat initiated between ", attacker.name, " and ", defender.name)
+	self.current_attacker = attacker
+	self.current_defender = defender
+	
+	# Hide the main scene, but don't free it
+	get_parent().visible = false
+	
+	# Load and instance the battle scene
+	var battle_scene = load("res://scenes/tests/TestBattle.tscn").instantiate()
+	get_tree().get_root().add_child(battle_scene)
+	
+	# Connect to the battle scene's finished signal
+	var combat_manager = battle_scene # Assuming the root of the battle scene is the CombatManager
+	if combat_manager:
+		combat_manager.combat_finished.connect(_on_combat_finished)
+
+func _on_combat_finished(winner: Piece, loser: Piece) -> void:
+	print("GameManager: Combat finished. Winner: ", winner.name)
+	
+	# Show the main scene again
+	get_parent().visible = true
+	
+	# Resolve the outcome on the board
+	_board.resolve_combat_outcome(winner, loser, current_attacker, current_defender)
+	
+	# Clean up combat state
+	self.current_attacker = null
+	self.current_defender = null
+
+	# Now it is safe to free the loser piece
+	if is_instance_valid(loser):
+		loser.queue_free()

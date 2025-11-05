@@ -2,6 +2,7 @@ extends Node2D
 class_name Board
 
 signal combat_ended(winner: Piece.PieceColor)
+signal combat_initiated(attacker: Piece, defender: Piece)
 
 @export var board_size: int = 8
 @export var tile_px: int = 64
@@ -100,21 +101,14 @@ func move_piece_to(piece: Piece, target_coord: Vector2i) -> void:
 			_moving = false
 			return
 		else:
-			# Lógica de recompensa de oro al capturar
-			var gold_to_add = 0
-			if occupying_piece is Pawn: gold_to_add = 1
-			elif occupying_piece is Knight: gold_to_add = 3
-			elif occupying_piece is Bishop: gold_to_add = 3
-			elif occupying_piece is Rook: gold_to_add = 5
-			elif occupying_piece is Queen: gold_to_add = 9
+			# An opponent is on the target tile, initiate combat
+			print("[Board] Combat initiated between ", piece.name, " and ", occupying_piece.name)
+			combat_initiated.emit(piece, occupying_piece)
+			_moving = false # Stop the move until combat is resolved
+			clear_selection()
+			return # Do not complete the move
 
-			if _player and gold_to_add > 0:
-				print("[Board] Jugador recibe ", gold_to_add, " de oro por eliminar a ", occupying_piece.name)
-				_player.add_gold(gold_to_add)
-
-			_piece_index.erase(occupying_piece.coord)
-			occupying_piece.queue_free()
-
+	# If the tile is empty, just move the piece
 	piece.coord = target_coord
 	clear_selection()
 	
@@ -267,3 +261,31 @@ func clear_board() -> void:
 	for piece in $Pieces.get_children():
 		piece.queue_free()
 	_piece_index.clear()
+
+func resolve_combat_outcome(winner: Piece, loser: Piece, original_attacker: Piece, original_defender: Piece) -> void:
+	print("[Board] Resolving combat outcome.")
+
+	# The loser is already freed, but we need to ensure it's removed from the index
+	if is_instance_valid(loser) and _piece_index.has(loser.coord):
+		_piece_index.erase(loser.coord)
+
+	# Reparent the winner back to this board
+	winner.get_parent().remove_child(winner)
+	$Pieces.add_child(winner)
+	winner.end_combat() # Revert sprite
+
+	# If the attacker won, move it to the defender's spot
+	if winner == original_attacker:
+		winner.coord = original_defender.coord
+	# If the defender won, it stays in its original spot, so no coord change is needed.
+
+	_rebuild_index()
+	if debug_mode:
+		_update_tiles_overlay()
+
+	# Progress the turn
+	if not is_arrangement_mode:
+		current_turn = Piece.PieceColor.BLACK if current_turn == Piece.PieceColor.WHITE else Piece.PieceColor.WHITE
+
+	# Check if this was the last piece
+	_check_victory_condition()

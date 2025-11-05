@@ -1,6 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://cnr4mddyhm1nm"]
+[gd_scene load_steps=3 format=3 uid="uid://cnr4mddyhm1nm"]
 
 [ext_resource type="Script" uid="uid://bufbkxhcpb5wd" path="res://scripts/entities/Piece.gd" id="1_gksgf"]
 
+[sub_resource type="SpriteFrames" id="SpriteFrames_2itsm"]
+
 [node name="Piece" type="Node2D"]
 script = ExtResource("1_gksgf")
+
+[node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_2itsm")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

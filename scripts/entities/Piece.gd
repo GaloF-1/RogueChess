@@ -1,6 +1,10 @@
 extends Node2D
 class_name Piece
 
+const DARKEN_SHADER = preload("res://scripts/shaders/darken.gdshader")
+
+signal defeated(victim: Piece, killer: Piece)
+
 enum PieceColor { WHITE, BLACK }
 
 @export var color: PieceColor = PieceColor.WHITE:
@@ -10,10 +14,12 @@ enum PieceColor { WHITE, BLACK }
 			_apply_sprite()
 @export var sprite_white: Texture2D
 @export var sprite_black: Texture2D
+@export var battle_sprite_frames: SpriteFrames
 @export var draggable: bool = true
 @export var initial_coord: Vector2i = Vector2i(-1, -1)
 
 @onready var _sprite: Sprite2D = get_node_or_null("Sprite2D")
+@onready var _battle_sprite: AnimatedSprite2D = get_node_or_null("BattleSprite")
 @onready var _hitbox: Area2D = get_node_or_null("Hitbox")
 @onready var _shape: RectangleShape2D = _hitbox.get_node("CollisionShape2D").shape if _hitbox else null
 
@@ -50,6 +56,11 @@ func _ready() -> void:
 		coord = initial_coord
 	y_sort_enabled = true
 	z_index = 1
+
+	# Ensure correct sprite visibility on load
+	if _sprite: _sprite.visible = true
+	if _battle_sprite: _battle_sprite.visible = false
+
 	_apply_sprite()
 	_snap_to_board()
 	_setup_hitbox()
@@ -112,10 +123,6 @@ func _start_drag() -> void:
 	# Solo mostrar movimientos legales en modo combate
 	if not board.is_arrangement_mode:
 		board.select_piece(self)
-
-func _process(delta: float) -> void:
-	if _dragging:
-		global_position = get_global_mouse_position() + _drag_offset
 
 func _end_drag() -> void:
 	var board: Board = _get_board()
@@ -181,3 +188,108 @@ func _get_board() -> Board:
 
 func _color_str(c: int) -> String:
 	return "WHITE" if c == PieceColor.WHITE else "BLACK"
+
+# --- COMBAT --- 
+
+enum BattleState { IDLE, ATTACKING }
+
+var battle_state = BattleState.IDLE
+var opponents: Array = []
+var current_target: Piece = null
+var attack_cooldown: float = 0.0
+
+func begin_combat(opponents_list: Array) -> void:
+	self.opponents = opponents_list
+	
+	# Switch to battle sprite
+	if _sprite: _sprite.visible = false
+	if _battle_sprite:
+		_battle_sprite.visible = true
+		_battle_sprite.sprite_frames = battle_sprite_frames
+		_battle_sprite.play("idle")
+
+		# Flip sprite if it's a black piece
+		if color == PieceColor.BLACK:
+			_battle_sprite.flip_h = true
+			# Apply darken shader
+			var material = ShaderMaterial.new()
+			material.shader = DARKEN_SHADER
+			_battle_sprite.material = material
+	
+	# Find initial target
+	self.current_target = _find_closest_opponent()
+	
+	# Start processing combat logic
+	set_process(true)
+
+func _process(delta: float) -> void:
+	# Dragging logic from before
+	if _dragging:
+		global_position = get_global_mouse_position() + _drag_offset
+		return # Don't process combat while dragging
+	
+	if battle_state == BattleState.IDLE and not is_instance_valid(current_target):
+		current_target = _find_closest_opponent()
+		return
+	
+	# --- Main Combat Logic ---
+	attack_cooldown -= delta
+
+	# Check if target is still valid
+	if not is_instance_valid(current_target):
+		battle_state = BattleState.IDLE
+		current_target = _find_closest_opponent()
+		if _battle_sprite: _battle_sprite.play("idle")
+		return
+
+	# If we have a valid target, we are always attacking
+	battle_state = BattleState.ATTACKING
+
+	if attack_cooldown <= 0.0:
+		if _battle_sprite: _battle_sprite.play("attack")
+		_attack(current_target)
+		# Reset cooldown based on attack speed (attacks per second)
+		attack_cooldown = 1.0 / attack_speed
+
+
+func take_damage(amount: int, killer: Piece = null) -> void:
+	var damage_taken = max(0, amount - defense)
+	self.current_hp -= damage_taken
+	print(name, " takes ", damage_taken, " damage, ", current_hp, " HP left.")
+
+	if self.current_hp <= 0:
+		print(name, " has been defeated.")
+		defeated.emit(self, killer)
+
+func _find_closest_opponent() -> Piece:
+	var closest = null
+	var min_dist = INF
+	for opponent in opponents:
+		if not is_instance_valid(opponent): continue
+		var dist = self.global_position.distance_squared_to(opponent.global_position)
+		if dist < min_dist:
+			min_dist = dist
+			closest = opponent
+	return closest
+
+func _attack(target: Piece) -> void:
+	print(name, " attacks ", target.name)
+	target.take_damage(self.attack_damage, self)
+
+func end_combat() -> void:
+	if _sprite: _sprite.visible = true
+	if _battle_sprite:
+		_battle_sprite.visible = false
+		_battle_sprite.stop()
+		_battle_sprite.frame = 0 # Reset animation frame
+		_battle_sprite.material = null # Remove shader
+		_battle_sprite.flip_h = false # Reset flip
+	
+	# Reactivate input for drag and drop
+	set_process_input(true)
+	_setup_hitbox()
+
+	battle_state = BattleState.IDLE
+	opponents = []
+	current_target = null
+	attack_cooldown = 0.0

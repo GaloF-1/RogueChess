@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d12cqs1lc0dnf"]
+[gd_scene load_steps=6 format=3 uid="uid://d12cqs1lc0dnf"]
 
 [ext_resource type="Script" uid="uid://bs0n8w1jkwpkm" path="res://scripts/entities/Pawn.gd" id="1_b4kb6"]
 [ext_resource type="Texture2D" uid="uid://w3qnndv40efn" path="res://assets/Chess Pieces/pawn_white.png" id="2_ht344"]
 [ext_resource type="Texture2D" uid="uid://v4gsmacnxhya" path="res://assets/Chess Pieces/pawn_black.png" id="3_247x2"]
+[ext_resource type="SpriteFrames" uid="uid://bxnypulq0edio" path="res://assets/Battle/Pawn/Pawn/pawn_battle.tres" id="4_i63to"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_247x2"]
 
@@ -12,8 +13,7 @@ scale = Vector2(0.7, 0.7)
 script = ExtResource("1_b4kb6")
 sprite_white = ExtResource("2_ht344")
 sprite_black = ExtResource("3_247x2")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
+battle_sprite_frames = ExtResource("4_i63to")
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -21,3 +21,12 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("RectangleShape2D_247x2")
+
+[node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(91.42859, 82.85715)
+sprite_frames = ExtResource("4_i63to")
+animation = &"dead"
+frame_progress = 0.9688597
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

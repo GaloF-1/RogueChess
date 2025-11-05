@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cunning-knight-scene"]
+[gd_scene load_steps=6 format=3 uid="uid://c6fmbk1fk6cnm"]
 
 [ext_resource type="Script" path="res://scripts/entities/Knight.gd" id="1_knight_gd"]
-[ext_resource type="Texture2D" uid="uid://d3a7w3vj3v3v3" path="res://assets/Chess Pieces/knight_white.png" id="2_knight_white_tex"]
-[ext_resource type="Texture2D" uid="uid://e4b8x4w4x4x4x" path="res://assets/Chess Pieces/knight_black.png" id="3_knight_black_tex"]
+[ext_resource type="Texture2D" uid="uid://c8xmif4vipnh6" path="res://assets/Chess Pieces/knight_white.png" id="2_knight_white_tex"]
+[ext_resource type="Texture2D" uid="uid://xibok7d4kboh" path="res://assets/Chess Pieces/knight_black.png" id="3_knight_black_tex"]
+[ext_resource type="SpriteFrames" uid="uid://b3g0onw1s66c5" path="res://assets/Battle/Knight/Knight/knight_battle.tres" id="4_xrjqn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_knight"]
 
@@ -11,8 +12,7 @@ z_index = 1
 script = ExtResource("1_knight_gd")
 sprite_white = ExtResource("2_knight_white_tex")
 sprite_black = ExtResource("3_knight_black_tex")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
+battle_sprite_frames = ExtResource("4_xrjqn")
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -20,3 +20,10 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("RectangleShape2D_knight")
+
+[node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("4_xrjqn")
+animation = &"dead"
+frame_progress = 0.48261642
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

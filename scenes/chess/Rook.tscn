@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cunning-rook-scene"]
+[gd_scene load_steps=6 format=3 uid="uid://bds3xi566wsoi"]
 
 [ext_resource type="Script" path="res://scripts/entities/Rook.gd" id="1_rook_gd"]
-[ext_resource type="Texture2D" uid="uid://c3a7w3vj3v3v3" path="res://assets/Chess Pieces/rook_white.png" id="2_rook_white_tex"]
-[ext_resource type="Texture2D" uid="uid://d4b8x4w4x4x4x" path="res://assets/Chess Pieces/rook_black.png" id="3_rook_black_tex"]
+[ext_resource type="Texture2D" uid="uid://dmgc6blcqv77u" path="res://assets/Chess Pieces/rook_white.png" id="2_rook_white_tex"]
+[ext_resource type="Texture2D" uid="uid://cbs7pu5ucqtau" path="res://assets/Chess Pieces/rook_black.png" id="3_rook_black_tex"]
+[ext_resource type="SpriteFrames" uid="uid://bjmkumvfr48jq" path="res://assets/Battle/Rook/Rook/rook_battle.tres" id="4_3ig4n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rook"]
 
@@ -11,13 +12,18 @@ z_index = 1
 script = ExtResource("1_rook_gd")
 sprite_white = ExtResource("2_rook_white_tex")
 sprite_black = ExtResource("3_rook_black_tex")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
+battle_sprite_frames = ExtResource("4_3ig4n")
 
 [node name="Hitbox" type="Area2D" parent="."]
-
 collision_layer = 2
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("RectangleShape2D_rook")
+
+[node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("4_3ig4n")
+animation = &"dead"
+frame_progress = 0.009766234
+
+[node name="Sprite2D" type="Sprite2D" parent="."]

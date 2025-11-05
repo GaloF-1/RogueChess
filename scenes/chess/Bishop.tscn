@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cunning-bishop-scene"]
+[gd_scene load_steps=6 format=3 uid="uid://klqvopjf6nwo"]
 
 [ext_resource type="Script" path="res://scripts/entities/Bishop.gd" id="1_bishop_gd"]
-[ext_resource type="Texture2D" uid="uid://b3a7w3vj3v3v3" path="res://assets/Chess Pieces/bishop_white.png" id="2_bishop_white_tex"]
-[ext_resource type="Texture2D" uid="uid://c4b8x4w4x4x4x" path="res://assets/Chess Pieces/bishop_black.png" id="3_bishop_black_tex"]
+[ext_resource type="Texture2D" uid="uid://jv6okqqjp74o" path="res://assets/Chess Pieces/bishop_white.png" id="2_bishop_white_tex"]
+[ext_resource type="Texture2D" uid="uid://r35xo2aqu5jd" path="res://assets/Chess Pieces/bishop_black.png" id="3_bishop_black_tex"]
+[ext_resource type="SpriteFrames" uid="uid://pe7bn78sef65" path="res://assets/Battle/Bishop/Bishop/bishop_battle.tres" id="4_4lm85"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bishop"]
 
@@ -12,11 +13,17 @@ script = ExtResource("1_bishop_gd")
 sprite_white = ExtResource("2_bishop_white_tex")
 sprite_black = ExtResource("3_bishop_black_tex")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("RectangleShape2D_bishop")
+
+[node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(2, 3)
+sprite_frames = ExtResource("4_4lm85")
+animation = &"idle"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(2, 3)
