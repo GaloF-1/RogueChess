@@ -85,6 +85,7 @@ func place_new_piece(blueprint: PieceBlueprint, coord: Vector2i, piece_color: Pi
 
 	var new_piece := blueprint.instantiate()
 	if new_piece:
+		new_piece.apply_blueprint(blueprint)
 		$Pieces.add_child(new_piece)
 		new_piece.color = piece_color
 		new_piece.coord = coord
@@ -257,6 +258,12 @@ func _color_str(c: int) -> String:
 func get_legal_moves() -> Array[Vector2i]:
 	return _legal_moves
 
+
+func clear_coord_from_index(coord: Vector2i) -> void:
+	if _piece_index.has(coord):
+		_piece_index.erase(coord)
+
+
 func clear_board() -> void:
 	for piece in $Pieces.get_children():
 		piece.queue_free()
@@ -277,7 +284,10 @@ func resolve_combat_outcome(winner: Piece, loser: Piece, original_attacker: Piec
 	# If the attacker won, move it to the defender's spot
 	if winner == original_attacker:
 		winner.coord = original_defender.coord
-	# If the defender won, it stays in its original spot, so no coord change is needed.
+	else:
+		# Defender won. Its coord is correct, but we need to update its visual position.
+		# Re-assigning the coord will trigger the setter which updates the position.
+		winner.coord = winner.coord
 
 	_rebuild_index()
 	if debug_mode:

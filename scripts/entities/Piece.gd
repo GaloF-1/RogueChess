@@ -131,31 +131,39 @@ func _end_drag() -> void:
 	_dragging = false
 	z_index = 1
 
-	if not board: 
-		if is_instance_valid(self): position = board.coord_to_position(_drag_start_coord)
+	if not board:
+		# This can happen if the piece is reparented mid-drag.
+		# We can't resolve coordinates, so just return to prevent a crash.
 		return
 
 	if was_a_drag:
 		var target_coord := board.position_to_coord(board.to_local(global_position))
 		
 		if board.is_arrangement_mode:
-			# Lógica de Fase de Organización
+			# Arrangement Phase Logic
 			if self.color == board.arrangement_color and board.is_valid_arrangement_square(target_coord) and board.get_piece_at(target_coord) == null:
 				self.coord = target_coord
 			else:
-				# Movimiento inválido, volver a la posición original
+				# Invalid move, snap back to original position
 				self.coord = _drag_start_coord
 		else:
-			# Lógica de Fase de Combate (la original)
+			# Combat Phase Logic
 			if target_coord in board.get_legal_moves():
 				board.move_piece_to(self, target_coord)
-			# Si no, la pieza vuelve sola porque no se actualiza su 'coord'
+				# If move_piece_to initiated combat, the piece will be reparented.
+				# If we no longer have a board, it means we are in the battle scene.
+				if not _get_board():
+					return # Position is now managed by CombatManager, so we stop.
+			else:
+				# Invalid move, snap back.
+				self.coord = _drag_start_coord
 	else:
-		# Fue un clic, no un arrastre. Solo relevante en modo combate.
+		# It was a click, not a drag. Only relevant in combat mode.
 		if not board.is_arrangement_mode:
 			board.select_piece(self)
 
-	# Al final, asegurar que la posición visual coincida con la coordenada lógica.
+	# At the end, ensure the visual position matches the logical coordinate.
+	# This will snap the piece back if the move was invalid.
 	if is_instance_valid(self):
 		position = board.coord_to_position(coord)
 
@@ -205,6 +213,8 @@ func begin_combat(opponents_list: Array) -> void:
 	if _sprite: _sprite.visible = false
 	if _battle_sprite:
 		_battle_sprite.visible = true
+		_battle_sprite.centered = true
+		_battle_sprite.position = Vector2.ZERO
 		_battle_sprite.sprite_frames = battle_sprite_frames
 		_battle_sprite.play("idle")
 

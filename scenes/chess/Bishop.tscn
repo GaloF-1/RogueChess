@@ -12,6 +12,7 @@ z_index = 1
 script = ExtResource("1_bishop_gd")
 sprite_white = ExtResource("2_bishop_white_tex")
 sprite_black = ExtResource("3_bishop_black_tex")
+battle_sprite_frames = ExtResource("4_4lm85")
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -21,9 +22,12 @@ collision_mask = 2
 shape = SubResource("RectangleShape2D_bishop")
 
 [node name="BattleSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(2, 3)
+texture_filter = 1
+position = Vector2(-1, -1)
 sprite_frames = ExtResource("4_4lm85")
-animation = &"idle"
+animation = &"dead"
+frame_progress = 0.39623457
+centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(2, 3)

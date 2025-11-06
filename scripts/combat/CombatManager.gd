@@ -2,10 +2,13 @@ extends Node2D
 
 signal piece_defeated_in_combat(victim: Piece, killer: Piece)
 signal combat_finished(winner: Piece, loser: Piece)
+signal combat_draw
 
 # --- NODES ---
 @onready var white_team_node = $WhiteTeam
 @onready var black_team_node = $BlackTeam
+@onready var white_position_marker = $WhitePosition
+@onready var black_position_marker = $BlackPosition
 @onready var initial_delay_timer = $InitialDelayTimer
 
 # --- VARS ---
@@ -18,6 +21,7 @@ var loser: Piece = null
 const INITIAL_DELAY = 1.0 # Seconds before battle starts
 
 func _ready():
+
 	var game_manager = get_node("/root/Game/GameManager")
 	if not game_manager or not is_instance_valid(game_manager.current_attacker) or not is_instance_valid(game_manager.current_defender):
 		print("Error: CombatManager could not find valid combatants in GameManager.")
@@ -44,6 +48,14 @@ func _ready():
 
 	white_team_node.add_child(white_piece)
 	black_team_node.add_child(black_piece)
+
+	# Position the team nodes at the markers
+	white_team_node.global_position = white_position_marker.global_position
+	black_team_node.global_position = black_position_marker.global_position
+
+	# Reset piece positions to be at the center of the team nodes
+	white_piece.position = Vector2.ZERO
+	black_piece.position = Vector2.ZERO
 
 	white_pieces = [white_piece]
 	black_pieces = [black_piece]
@@ -78,21 +90,31 @@ func _on_initial_delay_timer_timeout():
 func _process(delta): 
 	if not is_battle_active: return
 
-	# Check for victory/defeat conditions
-	if black_pieces.is_empty():
+	var white_lost := white_pieces.is_empty()
+	var black_lost := black_pieces.is_empty()
+
+	if not white_lost and black_lost:
+		# White wins
 		var winner = white_pieces[0]
 		print("--- ATTACKER WINS! ---")
 		is_battle_active = false
 		set_process(false)
 		combat_finished.emit(winner, loser)
 		queue_free()
-	
-	if white_pieces.is_empty():
+	elif not black_lost and white_lost:
+		# Black wins
 		var winner = black_pieces[0]
 		print("--- DEFENDER WINS! ---")
 		is_battle_active = false
 		set_process(false)
 		combat_finished.emit(winner, loser)
+		queue_free()
+	elif black_lost and white_lost:
+		# Draw
+		print("--- DRAW! --- ")
+		is_battle_active = false
+		set_process(false)
+		combat_draw.emit()
 		queue_free()
 
 func _on_piece_defeated(victim: Piece, killer: Piece) -> void:

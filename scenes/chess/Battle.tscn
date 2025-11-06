@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://0gllb11o1ubd"]
+
+[ext_resource type="Script" uid="uid://dn5ktld6km3bt" path="res://scripts/combat/CombatManager.gd" id="1_w8j2j"]
+
+[node name="Battle" type="Node2D"]
+script = ExtResource("1_w8j2j")
+
+[node name="WhitePosition" type="Marker2D" parent="."]
+position = Vector2(450, 324)
+
+[node name="BlackPosition" type="Marker2D" parent="."]
+position = Vector2(700, 324)
+
+[node name="WhiteTeam" type="Node2D" parent="."]
+
+[node name="BlackTeam" type="Node2D" parent="."]
+
+[node name="InitialDelayTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="InitialDelayTimer" to="." method="_on_initial_delay_timer_timeout"]

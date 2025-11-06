@@ -22,8 +22,10 @@ collision_mask = 2
 shape = SubResource("RectangleShape2D_rook")
 
 [node name="BattleSprite" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
 sprite_frames = ExtResource("4_3ig4n")
 animation = &"dead"
-frame_progress = 0.009766234
+frame_progress = 0.8416685
+centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

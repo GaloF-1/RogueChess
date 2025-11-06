@@ -6,8 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://b7naq2v34c6c3" path="res://scenes/ui/Tienda/ShopUI.tscn" id="4"]
 [ext_resource type="Script" uid="uid://clcavvlgh41d6" path="res://scripts/entities/PieceBlueprint.gd" id="4_400sg"]
 [ext_resource type="Resource" uid="uid://c3hmbqitoyus6" path="res://assets/blueprints/pawn_blueprint.tres" id="5"]
-[ext_resource type="Resource" path="res://assets/blueprints/test_rook_blueprint.tres" id="6"]
-[ext_resource type="Resource" uid="uid://bfxo7g3r4fbou" path="res://assets/blueprints/test_king_blueprint.tres" id="7"]
+[ext_resource type="Resource" path="res://assets/blueprints/rook_blueprint.tres" id="6"]
+[ext_resource type="Resource" uid="uid://bfxo7g3r4fbou" path="res://assets/blueprints/king_blueprint.tres" id="7"]
 [ext_resource type="Resource" path="res://assets/blueprints/queen_blueprint.tres" id="7_3xj3m"]
 [ext_resource type="Resource" path="res://assets/blueprints/bishop_blueprint.tres" id="8_mcffj"]
 [ext_resource type="Resource" path="res://assets/blueprints/knight_blueprint.tres" id="9_2rd6h"]
@@ -22,6 +22,11 @@ enemy_blueprints = Array[ExtResource("4_400sg")]([ExtResource("5"), ExtResource(
 
 [node name="Board" parent="." instance=ExtResource("3")]
 position = Vector2(-1, -2)
+board_size = null
+tile_px = null
+light_color = null
+dark_color = null
+player_rows = null
 
 [node name="ShopUI" parent="." instance=ExtResource("4")]
 anchors_preset = 6

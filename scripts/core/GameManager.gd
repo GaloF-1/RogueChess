@@ -82,9 +82,25 @@ func _setup_round(round_num: int) -> void:
 	_board.finalize_round_setup()
 	_board.start_combat()
 
+
+func _check_for_king_death(piece: Piece) -> bool:
+	if piece and piece.blueprint == king_blueprint and piece.color == Piece.PieceColor.WHITE:
+		print("--- GAME OVER: El Rey ha sido derrotado. ---")
+		get_tree().quit()
+		return true
+	return false
+
 func _on_combat_ended(winner: Piece.PieceColor) -> void:
 	if winner == Piece.PieceColor.WHITE:
 		print("RONDA %d SUPERADA" % _current_round)
+		_player.add_gold(10) # Recompensa de oro fija por ronda
+		
+		# Calcular y añadir intereses
+		var interest_gold = floor(_player.gold / 5)
+		if interest_gold > 0:
+			_player.add_gold(interest_gold)
+			print("[GameManager] Intereses añadidos: ", interest_gold, " | Total: ", _player.gold)
+		
 		transition_to_phase(GamePhase.SHOP)
 	else:
 		print("--- DERROTA ---")
@@ -99,15 +115,19 @@ func _on_combat_initiated(attacker: Piece, defender: Piece) -> void:
 	get_parent().visible = false
 	
 	# Load and instance the battle scene
-	var battle_scene = load("res://scenes/tests/TestBattle.tscn").instantiate()
+	var battle_scene = load("res://scenes/chess/Battle.tscn").instantiate()
 	get_tree().get_root().add_child(battle_scene)
 	
 	# Connect to the battle scene's finished signal
 	var combat_manager = battle_scene # Assuming the root of the battle scene is the CombatManager
 	if combat_manager:
 		combat_manager.combat_finished.connect(_on_combat_finished)
+		combat_manager.combat_draw.connect(_on_combat_draw)
 
 func _on_combat_finished(winner: Piece, loser: Piece) -> void:
+	if _check_for_king_death(loser):
+		return
+
 	print("GameManager: Combat finished. Winner: ", winner.name)
 	
 	# Show the main scene again
@@ -123,3 +143,33 @@ func _on_combat_finished(winner: Piece, loser: Piece) -> void:
 	# Now it is safe to free the loser piece
 	if is_instance_valid(loser):
 		loser.queue_free()
+
+func _on_combat_draw() -> void:
+	if _check_for_king_death(current_attacker) or _check_for_king_death(current_defender):
+		return
+		
+	print("GameManager: Combat ended in a draw.")
+	
+	# Show the main scene again
+	get_parent().visible = true
+
+	# Store coords before the instances are freed
+	var attacker_coord = current_attacker.coord
+	var defender_coord = current_defender.coord
+
+	# Both pieces are defeated. Remove them from the game.
+	if is_instance_valid(current_attacker):
+		current_attacker.queue_free()
+	if is_instance_valid(current_defender):
+		current_defender.queue_free()
+	
+	# Explicitly clear the board's index for these coordinates
+	_board.clear_coord_from_index(attacker_coord)
+	_board.clear_coord_from_index(defender_coord)
+
+	# Update the board state by checking if a side has been wiped out
+	_board._check_victory_condition()
+
+	# Clean up combat state
+	self.current_attacker = null
+	self.current_defender = null

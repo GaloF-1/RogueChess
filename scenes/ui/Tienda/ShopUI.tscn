@@ -7,7 +7,7 @@
 [ext_resource type="Resource" uid="uid://c3hmbqitoyus6" path="res://assets/blueprints/pawn_blueprint.tres" id="5_xkwph"]
 [ext_resource type="Resource" path="res://assets/blueprints/knight_blueprint.tres" id="6_knight"]
 [ext_resource type="Resource" path="res://assets/blueprints/bishop_blueprint.tres" id="7_bishop"]
-[ext_resource type="Resource" path="res://assets/blueprints/test_rook_blueprint.tres" id="8_rook"]
+[ext_resource type="Resource" path="res://assets/blueprints/rook_blueprint.tres" id="8_rook"]
 [ext_resource type="Resource" path="res://assets/blueprints/queen_blueprint.tres" id="9_queen"]
 
 [node name="ShopUI" type="Control"]

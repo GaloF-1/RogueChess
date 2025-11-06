@@ -24,9 +24,10 @@ shape = SubResource("RectangleShape2D_247x2")
 
 [node name="BattleSprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-position = Vector2(91.42859, 82.85715)
+position = Vector2(-4.5474735e-13, 0)
 sprite_frames = ExtResource("4_i63to")
 animation = &"dead"
-frame_progress = 0.9688597
+frame_progress = 0.89198434
+centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
