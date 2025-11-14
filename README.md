@@ -9,7 +9,7 @@
 - [x] **Tienda** (3 ofertas + reroll)
 - [x] **Compra** desde blueprints y **colocación** en tablero
 - [ ] **Combate automático** básico (turnos alternados, reglas por pieza)
-- [ ] **Victoria/Derrota** + **recompensa** de oro por ronda
+- [x] **Victoria/Derrota** + **recompensa** de oro por ronda
 - [ ] **HUD** minimal (oro, ronda, botones de fase/tienda)
 - [ ] **Seed** reproducible
 - [ ] **Export** (Windows/Linux) + script de **presentación (5–7 min)**
@@ -25,7 +25,7 @@
 - [x] Stubs de clases: `Run`, `Round`, `Board`, `BoardTile`, `Player`, `Shop`, `ShopOffer`, `Piece` (+subclases), `PieceBlueprint`, `Enemy`, `Behavior`, `Effect`
 - [x] Enums: `PieceType`, `Rarity`, `TileState`, `RunState`
 **DoD**
-- [ ] Escena principal corre con botón **Start Run**
+- [x] Escena principal corre con botón **Start Run**
 
 ---
 
@@ -55,8 +55,8 @@
 
 ### Sprint 3 — Loop de Ronda & Progresión _(13 – 19 oct)_
 **Objetivo:** cerrar el ciclo Tienda → Colocación → (Combate placeholder) → Recompensa.
-- [ ] `Round.start()` / `Round.resolve()`
-- [ ] Estados de fase en UI y navegación
+- [x] `Round.start()` / `Round.resolve()`
+- [x] Estados de fase en UI y navegación
 - [ ] `Run.nextRound()`: tamaño prog. **5×5 → 6×6 → 7×7**
 - [x] Recompensa de oro fija por ronda
 **DoD**
@@ -68,12 +68,12 @@
 ### Sprint 4 — Combate Automático _(20 – 26 oct)_
 **Objetivo:** combate funcional básico.
 - [x] Sistema de **turnos** (alternado / iniciativa simple)
-- [x] Movimiento/ataque según `PieceType` (mín.: Peón, Torre, Caballo)
+- [ ] Movimiento/ataque según `PieceType` (mín.: Peón, Torre, Caballo)
 - [ ] `Enemy` + `Behavior` **agresivo** simple
-- [ ] `Board.isVictory()` (condición de fin)
+- [x] `Board.isVictory()` (condición de fin)
 **DoD**
-- [x] Piezas **se mueven y atacan** hasta resultado
-- [ ] `Round.resolve()` avanza a la siguiente ronda
+- [ ] Piezas **se mueven y atacan** hasta resultado
+- [x] `Round.resolve()` avanza a la siguiente ronda
 
 ---
 
@@ -95,7 +95,7 @@
 ### Sprint 6 — UI/UX, Export y Script de Demo _(3 – 9 nov)_
 **Objetivo:** dejarlo presentable y exportable.
 - [ ] HUD prolijo (oro, ronda, botones de fase, mini log de acciones)
-- [ ] Pantallas: **Title**, **Run en curso**, **Fin de run**
+- [x] Pantallas: **Title**, **Run en curso**, **Fin de run**
 - [ ] **Export** Godot a Windows/Linux
 - [ ] **Script de demo** paso a paso + semillas de referencia
 **DoD**
@@ -117,17 +117,17 @@
 ---
 
 ## 📦 MVP Técnico
-- [ ] Piezas: **Peón**, **Torre**, **Caballo**
-- [ ] Tablero: cuadrícula + casilla **normal** (opcional **bloqueada**)
+- [x] Piezas: **Peón**, **Torre**, **Caballo**
+- [x] Tablero: cuadrícula + casilla **normal** (opcional **bloqueada**)
 - [ ] IA: 1 `Behavior` **agresivo**
 - [ ] Efectos: **2** (uno global y uno por pieza)
-- [ ] Economía: 3 `Rarity` (**Común/Raro/Épico**)
+- [x] Economía: 3 `Rarity` (**Común/Raro/Épico**)
 - [ ] Rondas: **3** (5×5 → 6×6 → 7×7)
 
 ---
 
 ## 🧩 Backlog (post-demo)
-- [ ] Más tipos de pieza (**Alfil**, **Reina**, **Rey**) y reglas avanzadas
+- [x] Más tipos de pieza (**Alfil**, **Reina**, **Rey**) y reglas avanzadas
 - [ ] `Behavior` adicionales (oportunista, foco al rey)
 - [ ] Más **Effects** y **Events**
 - [ ] Animaciones/partículas
@@ -148,7 +148,7 @@
 - [ ] Tienda → Colocación → Combate → Recompensa (2 seeds distintas)
 
 **UI**
-- [ ] Botones deshabilitados según fase
+- [x] Botones deshabilitados según fase
 - [ ] Feedback de **oro insuficiente**
 
 ---

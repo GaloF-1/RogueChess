@@ -1,15 +1,15 @@
-[gd_resource type="Resource" script_class="PieceBlueprint" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="PieceBlueprint" load_steps=4 format=3 uid="uid://cgwrgcjhtn4fc"]
 
-[ext_resource type="Script" path="res://scripts/entities/PieceBlueprint.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://scenes/chess/Knight.tscn" id="2_scene"]
-[ext_resource type="Texture2D" path="res://assets/Chess Pieces/knight_white.png" id="3_texture"]
+[ext_resource type="Script" uid="uid://clcavvlgh41d6" path="res://scripts/entities/PieceBlueprint.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://c6fmbk1fk6cnm" path="res://scenes/chess/Knight.tscn" id="2_scene"]
+[ext_resource type="Texture2D" uid="uid://c8xmif4vipnh6" path="res://assets/Chess Pieces/knight_white.png" id="3_texture"]
 
 [resource]
 script = ExtResource("1_script")
 piece_scene = ExtResource("2_scene")
+type = 2
 texture = ExtResource("3_texture")
 piece_name = "Knight"
-gold_value = 3
 max_hp = 12
 attack_damage = 3
 defense = 1

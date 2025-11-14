@@ -1,0 +1,6 @@
+extends Control
+
+signal play_again_requested
+
+func _on_play_again_button_pressed() -> void:
+	play_again_requested.emit()

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://d12cqs1lc0dnf"]
+[gd_scene load_steps=7 format=3 uid="uid://d12cqs1lc0dnf"]
 
 [ext_resource type="Script" uid="uid://bs0n8w1jkwpkm" path="res://scripts/entities/Pawn.gd" id="1_b4kb6"]
 [ext_resource type="Texture2D" uid="uid://w3qnndv40efn" path="res://assets/Chess Pieces/pawn_white.png" id="2_ht344"]
 [ext_resource type="Texture2D" uid="uid://v4gsmacnxhya" path="res://assets/Chess Pieces/pawn_black.png" id="3_247x2"]
 [ext_resource type="SpriteFrames" uid="uid://bxnypulq0edio" path="res://assets/Battle/Pawn/Pawn/pawn_battle.tres" id="4_i63to"]
+[ext_resource type="PackedScene" uid="uid://b5w7gq46b0jle" path="res://scenes/ui/HealthBar.tscn" id="5_qth7y"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_247x2"]
 
@@ -14,6 +15,7 @@ script = ExtResource("1_b4kb6")
 sprite_white = ExtResource("2_ht344")
 sprite_black = ExtResource("3_247x2")
 battle_sprite_frames = ExtResource("4_i63to")
+health_bar_offset = Vector2(-30, 80)
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -31,3 +33,6 @@ frame_progress = 0.89198434
 centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthBar" parent="." instance=ExtResource("5_qth7y")]
+visible = false

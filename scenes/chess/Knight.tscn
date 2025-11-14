@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://c6fmbk1fk6cnm"]
+[gd_scene load_steps=7 format=3 uid="uid://c6fmbk1fk6cnm"]
 
-[ext_resource type="Script" path="res://scripts/entities/Knight.gd" id="1_knight_gd"]
+[ext_resource type="Script" uid="uid://c4htvu4n5sysr" path="res://scripts/entities/Knight.gd" id="1_knight_gd"]
 [ext_resource type="Texture2D" uid="uid://c8xmif4vipnh6" path="res://assets/Chess Pieces/knight_white.png" id="2_knight_white_tex"]
 [ext_resource type="Texture2D" uid="uid://xibok7d4kboh" path="res://assets/Chess Pieces/knight_black.png" id="3_knight_black_tex"]
 [ext_resource type="SpriteFrames" uid="uid://b3g0onw1s66c5" path="res://assets/Battle/Knight/Knight/knight_battle.tres" id="4_xrjqn"]
+[ext_resource type="PackedScene" uid="uid://b5w7gq46b0jle" path="res://scenes/ui/HealthBar.tscn" id="5_e4eur"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_knight"]
 
@@ -13,6 +14,7 @@ script = ExtResource("1_knight_gd")
 sprite_white = ExtResource("2_knight_white_tex")
 sprite_black = ExtResource("3_knight_black_tex")
 battle_sprite_frames = ExtResource("4_xrjqn")
+health_bar_offset = Vector2(-30, 80)
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -29,3 +31,6 @@ frame_progress = 0.6992582
 centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthBar" parent="." instance=ExtResource("5_e4eur")]
+visible = false

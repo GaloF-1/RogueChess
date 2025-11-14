@@ -14,7 +14,11 @@ var gold: int:
 			gold_changed.emit(_gold)
 
 func _ready() -> void:
+	reset()
+
+func reset() -> void:
 	self.gold = starting_gold
+
 
 
 func can_spend(amount: int) -> bool:

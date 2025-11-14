@@ -6,6 +6,8 @@ enum GamePhase {
 	COMBAT     # Las piezas luchan.
 }
 
+signal game_over
+
 signal phase_changed(new_phase: GamePhase)
 signal round_changed(new_round: int)
 
@@ -46,12 +48,15 @@ func _ready() -> void:
 	_board.combat_initiated.connect(_on_combat_initiated)
 	_shop_ui.next_round_requested.connect(Callable(self, "transition_to_phase").bind(GamePhase.COMBAT))
 	
-	start_new_run()
+	# Do not start a new run automatically, wait for Main scene
+	# start_new_run()
 
 func start_new_run() -> void:
 	print("--- NUEVA PARTIDA INICIADA ---")
-	self._current_round = 1
-	_setup_round(_current_round)
+	_board.clear_board()
+	self._current_round = 0
+	_player.reset()
+	transition_to_phase(GamePhase.SHOP)
 
 func transition_to_phase(new_phase: GamePhase) -> void:
 	print("Transicionando a la fase: %s" % GamePhase.keys()[new_phase])
@@ -59,6 +64,12 @@ func transition_to_phase(new_phase: GamePhase) -> void:
 	
 	match _current_phase:
 		GamePhase.SHOP:
+			# Setup for the very first round
+			if _current_round == 0:
+				_board.resize_board(3)
+				_board.place_new_piece(king_blueprint, Vector2i(1, 2), Piece.PieceColor.WHITE)
+
+			# Logic for all shop phases (including the first)
 			_shop_ui.show()
 			_board.set_arrangement_mode(true, Piece.PieceColor.WHITE)
 			var shop_logic = _shop_ui.get_node_or_null("Shop")
@@ -67,35 +78,41 @@ func transition_to_phase(new_phase: GamePhase) -> void:
 
 		GamePhase.COMBAT:
 			self._current_round += 1
+			
+			match _current_round:
+				3:
+					_board.resize_board(4)
+				5:
+					_board.resize_board(5)
+
 			_setup_round(_current_round)
+			
+			_shop_ui.hide()
+			_board.set_arrangement_mode(false, Piece.PieceColor.WHITE)
+			_board.start_combat()
+
 
 func _setup_round(round_num: int) -> void:
-	_shop_ui.hide()
-	_board.set_arrangement_mode(false, Piece.PieceColor.WHITE)
-
-	match round_num:
-		1:
-			_board.resize_board(3)
-			_board.place_new_piece(king_blueprint, Vector2i(1, 2), Piece.PieceColor.WHITE)
-
+	# This function is now only for spawning enemies for the current round
 	_board.spawn_enemies(round_num)
 	_board.finalize_round_setup()
-	_board.start_combat()
 
 
 func _check_for_king_death(piece: Piece) -> bool:
 	if piece and piece.blueprint == king_blueprint and piece.color == Piece.PieceColor.WHITE:
 		print("--- GAME OVER: El Rey ha sido derrotado. ---")
-		get_tree().quit()
+		game_over.emit()
 		return true
 	return false
 
 func _on_combat_ended(winner: Piece.PieceColor) -> void:
 	if winner == Piece.PieceColor.WHITE:
 		print("RONDA %d SUPERADA" % _current_round)
-		_player.add_gold(10) # Recompensa de oro fija por ronda
 		
-		# Calcular y añadir intereses
+		_board.heal_all_player_pieces()
+
+		# Award gold and interest after winning a round
+		_player.add_gold(10)
 		var interest_gold = floor(_player.gold / 5)
 		if interest_gold > 0:
 			_player.add_gold(interest_gold)
@@ -104,7 +121,7 @@ func _on_combat_ended(winner: Piece.PieceColor) -> void:
 		transition_to_phase(GamePhase.SHOP)
 	else:
 		print("--- DERROTA ---")
-		get_tree().quit()
+		game_over.emit()
 
 func _on_combat_initiated(attacker: Piece, defender: Piece) -> void:
 	print("GameManager: Combat initiated between ", attacker.name, " and ", defender.name)
@@ -118,9 +135,10 @@ func _on_combat_initiated(attacker: Piece, defender: Piece) -> void:
 	var battle_scene = load("res://scenes/chess/Battle.tscn").instantiate()
 	get_tree().get_root().add_child(battle_scene)
 	
-	# Connect to the battle scene's finished signal
-	var combat_manager = battle_scene # Assuming the root of the battle scene is the CombatManager
+	# Connect to the battle scene's finished signal and set it up
+	var combat_manager = battle_scene as CombatManager
 	if combat_manager:
+		combat_manager.setup(self)
 		combat_manager.combat_finished.connect(_on_combat_finished)
 		combat_manager.combat_draw.connect(_on_combat_draw)
 

@@ -1,4 +1,5 @@
 extends Node2D
+class_name CombatManager
 
 signal piece_defeated_in_combat(victim: Piece, killer: Piece)
 signal combat_finished(winner: Piece, loser: Piece)
@@ -20,11 +21,9 @@ var loser: Piece = null
 # --- CONSTANTS ---
 const INITIAL_DELAY = 1.0 # Seconds before battle starts
 
-func _ready():
-
-	var game_manager = get_node("/root/Game/GameManager")
-	if not game_manager or not is_instance_valid(game_manager.current_attacker) or not is_instance_valid(game_manager.current_defender):
-		print("Error: CombatManager could not find valid combatants in GameManager.")
+func setup(game_manager: GameManager):
+	if not is_instance_valid(game_manager) or not is_instance_valid(game_manager.current_attacker) or not is_instance_valid(game_manager.current_defender):
+		print("Error: CombatManager no pudo encontrar combatientes válidos en GameManager.")
 		queue_free()
 		return
 

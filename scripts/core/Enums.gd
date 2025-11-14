@@ -9,4 +9,14 @@ enum Rarity {
 	LEGENDARY
 }
 
+# Enum para los tipos de piezas de ajedrez
+enum PieceType {
+	PAWN,
+	ROOK,
+	KNIGHT,
+	BISHOP,
+	QUEEN,
+	KING
+}
+
 # Puedes añadir más enums globales aquí a futuro

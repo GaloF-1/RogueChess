@@ -51,34 +51,105 @@ func setup_next_round(round_num: int) -> void:
 		_update_tiles_overlay()
 
 func spawn_enemies(round_num: int) -> void:
+
 	var num_enemies: int
+
 	match round_num:
+
 		1: num_enemies = randi_range(1, 2)
+
 		2: num_enemies = randi_range(2, 4)
+
 		_: num_enemies = randi_range(3, 5)
 
+
+
+	# Filtrar blueprints de enemigos según la ronda
+
+	var available_blueprints: Array[PieceBlueprint] = []
+
+	if round_num < 3: # Rondas 1-2: Sin Reinas ni Torres
+
+		available_blueprints = enemy_blueprints.filter(func(bp): return bp.type != Enums.PieceType.QUEEN and bp.type != Enums.PieceType.ROOK)
+
+	elif round_num < 5: # Rondas 3-4: Sin Reinas
+
+		available_blueprints = enemy_blueprints.filter(func(bp): return bp.type != Enums.PieceType.QUEEN)
+
+	else: # Ronda 5 en adelante: Todas las piezas disponibles
+
+		available_blueprints = enemy_blueprints
+
+
+
+	if available_blueprints.is_empty():
+
+		push_warning("No hay blueprints de enemigos disponibles para la ronda %d." % round_num)
+
+		return
+
+
+
 	print("[Board] Spawneando %d enemigos para la ronda %d." % [num_enemies, round_num])
+
 	for i in range(num_enemies):
-		if enemy_blueprints.is_empty():
-			push_warning("No hay blueprints de enemigos configurados en el tablero.")
-			break
-			
-		var bp = enemy_blueprints.pick_random()
-		var spawn_coord = get_random_empty_enemy_square()
+
+		var bp = available_blueprints.pick_random()
+
 		
+
+		var spawn_coord = get_random_empty_enemy_square()
+
+		
+
 		if spawn_coord != Vector2i(-1, -1):
+
 			place_new_piece(bp, spawn_coord, Piece.PieceColor.BLACK)
+
 		else:
+
 			break # No more space
 
 
 
 func resize_board(new_size: int) -> void:
+	var old_size = board_size
+	
+	# 1. Guardar las piezas del jugador
+	var preserved_pieces: Array[Dictionary] = []
+	for piece in $Pieces.get_children():
+		if piece is Piece and piece.color == Piece.PieceColor.WHITE:
+			preserved_pieces.append({"piece": piece, "coord": piece.coord})
+			$Pieces.remove_child(piece) # Quitar de la escena temporalmente sin liberar
+
+	# 2. Limpiar el tablero (elimina enemigos y tiles)
+	clear_enemies()
+	for child in $Tiles.get_children():
+		child.queue_free()
+	_tiles.clear()
+
+	# 3. Regenerar el tablero con el nuevo tamaño
 	board_size = new_size
-	# Limpiar piezas existentes antes de regenerar el tablero
-	clear_board()
 	_generate_tiles()
 	print("[Board] Tablero redimensionado a %dx%d" % [new_size, new_size])
+
+	# 4. Recolocar las piezas del jugador
+	for item in preserved_pieces:
+		var piece: Piece = item["piece"]
+		var old_coord: Vector2i = item["coord"]
+		
+		# Calcular nueva coordenada relativa al fondo
+		var old_relative_y = old_size - old_coord.y
+		var new_y = new_size - old_relative_y
+		var new_coord = Vector2i(old_coord.x, new_y)
+		
+		# Añadir la pieza de nuevo y establecer su nueva coordenada
+		$Pieces.add_child(piece)
+		piece.coord = new_coord
+
+	_rebuild_index()
+	if debug_mode:
+		_update_tiles_overlay()
 
 func place_new_piece(blueprint: PieceBlueprint, coord: Vector2i, piece_color: Piece.PieceColor) -> void:
 	if not blueprint: push_error("Blueprint nulo"); return
@@ -251,6 +322,13 @@ func finalize_round_setup() -> void:
 	_rebuild_index()
 	if debug_mode:
 		_update_tiles_overlay()
+
+func heal_all_player_pieces() -> void:
+	for piece in _piece_index.values():
+		if is_instance_valid(piece) and piece.color == Piece.PieceColor.WHITE:
+			piece.heal_to_full()
+	print("[Board] Todas las piezas del jugador han sido curadas.")
+
 
 func _color_str(c: int) -> String:
 	return "WHITE" if c == Piece.PieceColor.WHITE else "BLACK"

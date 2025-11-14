@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://bds3xi566wsoi"]
+[gd_scene load_steps=7 format=3 uid="uid://bds3xi566wsoi"]
 
-[ext_resource type="Script" path="res://scripts/entities/Rook.gd" id="1_rook_gd"]
+[ext_resource type="Script" uid="uid://5pq7y3qsdxym" path="res://scripts/entities/Rook.gd" id="1_rook_gd"]
 [ext_resource type="Texture2D" uid="uid://dmgc6blcqv77u" path="res://assets/Chess Pieces/rook_white.png" id="2_rook_white_tex"]
 [ext_resource type="Texture2D" uid="uid://cbs7pu5ucqtau" path="res://assets/Chess Pieces/rook_black.png" id="3_rook_black_tex"]
 [ext_resource type="SpriteFrames" uid="uid://bjmkumvfr48jq" path="res://assets/Battle/Rook/Rook/rook_battle.tres" id="4_3ig4n"]
+[ext_resource type="PackedScene" uid="uid://b5w7gq46b0jle" path="res://scenes/ui/HealthBar.tscn" id="5_op1ao"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rook"]
 
@@ -13,6 +14,7 @@ script = ExtResource("1_rook_gd")
 sprite_white = ExtResource("2_rook_white_tex")
 sprite_black = ExtResource("3_rook_black_tex")
 battle_sprite_frames = ExtResource("4_3ig4n")
+health_bar_offset = Vector2(-30, 80)
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -29,3 +31,6 @@ frame_progress = 0.8416685
 centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthBar" parent="." instance=ExtResource("5_op1ao")]
+visible = false

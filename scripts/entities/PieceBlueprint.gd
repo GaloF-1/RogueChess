@@ -2,6 +2,7 @@ class_name PieceBlueprint
 extends Resource
 
 @export var piece_scene: PackedScene
+@export var type: Enums.PieceType
 @export var texture: Texture2D
 @export var piece_name: String = ""
 @export var cost: int = 5

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://2yncw47rvkxw"]
+[gd_scene load_steps=7 format=3 uid="uid://2yncw47rvkxw"]
 
-[ext_resource type="Script" path="res://scripts/entities/King.gd" id="1_king_gd"]
+[ext_resource type="Script" uid="uid://bxe2u5gs0s0go" path="res://scripts/entities/King.gd" id="1_king_gd"]
 [ext_resource type="Texture2D" uid="uid://4y04s6w5f23l" path="res://assets/Chess Pieces/king_white.png" id="2_king_white_tex"]
 [ext_resource type="Texture2D" uid="uid://y6ewsqlq0bs0" path="res://assets/Chess Pieces/king_black.png" id="3_king_black_tex"]
 [ext_resource type="SpriteFrames" uid="uid://24ji2vlhoj2a" path="res://assets/Battle/King/King/king_battle.tres" id="4_txjre"]
+[ext_resource type="PackedScene" uid="uid://b5w7gq46b0jle" path="res://scenes/ui/HealthBar.tscn" id="5_healthbar"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_king"]
 
@@ -13,6 +14,7 @@ script = ExtResource("1_king_gd")
 sprite_white = ExtResource("2_king_white_tex")
 sprite_black = ExtResource("3_king_black_tex")
 battle_sprite_frames = ExtResource("4_txjre")
+health_bar_offset = Vector2(-30, 80)
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 2
@@ -24,8 +26,12 @@ shape = SubResource("RectangleShape2D_king")
 [node name="BattleSprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
 sprite_frames = ExtResource("4_txjre")
-animation = &"attack"
-frame_progress = 0.9691585
+animation = &"dead"
 centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthBar" parent="." instance=ExtResource("5_healthbar")]
+visible = false
+offset_right = 2.0
+offset_bottom = 25.0

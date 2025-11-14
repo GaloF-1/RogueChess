@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cnr4mddyhm1nm"]
+[gd_scene load_steps=4 format=3 uid="uid://cnr4mddyhm1nm"]
 
 [ext_resource type="Script" uid="uid://bufbkxhcpb5wd" path="res://scripts/entities/Piece.gd" id="1_gksgf"]
+[ext_resource type="PackedScene" uid="uid://b5w7gq46b0jle" path="res://scenes/ui/HealthBar.tscn" id="2_abcde"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_2itsm"]
 
@@ -11,3 +12,8 @@ script = ExtResource("1_gksgf")
 sprite_frames = SubResource("SpriteFrames_2itsm")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="HealthBar" parent="." instance=ExtResource("2_abcde")]
+visible = false
+position = Vector2(-30, 35)
+

@@ -22,6 +22,9 @@ enum PieceColor { WHITE, BLACK }
 @onready var _battle_sprite: AnimatedSprite2D = get_node_or_null("BattleSprite")
 @onready var _hitbox: Area2D = get_node_or_null("Hitbox")
 @onready var _shape: RectangleShape2D = _hitbox.get_node("CollisionShape2D").shape if _hitbox else null
+@onready var _health_bar: HealthBar = get_node_or_null("HealthBar")
+
+@export var health_bar_offset: Vector2 = Vector2(-30, 45)
 
 #region Stats RPG
 var blueprint: PieceBlueprint
@@ -57,6 +60,15 @@ func _ready() -> void:
 	y_sort_enabled = true
 	z_index = 1
 
+	if _health_bar:
+		print("DEBUG: _ready - HealthBar found.")
+		print("DEBUG: _ready - Initial health_bar_offset: ", health_bar_offset)
+		print("DEBUG: _ready - HealthBar position BEFORE: ", _health_bar.position)
+		_health_bar.position = health_bar_offset
+		print("DEBUG: _ready - HealthBar position AFTER: ", _health_bar.position)
+	else:
+		print("DEBUG: _ready - HealthBar NOT found.")
+
 	# Ensure correct sprite visibility on load
 	if _sprite: _sprite.visible = true
 	if _battle_sprite: _battle_sprite.visible = false
@@ -70,13 +82,26 @@ func apply_blueprint(bp: PieceBlueprint) -> void:
 	self.blueprint = bp
 	self.name = bp.piece_name
 	self.max_hp = bp.max_hp
-	self.current_hp = bp.max_hp
+	
+	# Solo restaurar la vida si la pieza es nueva (vida <= 0)
+	if self.current_hp <= 0:
+		self.current_hp = bp.max_hp
+
 	self.attack_damage = bp.attack_damage
 	self.defense = bp.defense
 	self.attack_speed = bp.attack_speed
 	self.attack_range = bp.attack_range
 	self.crit_chance = bp.crit_chance
 	self.crit_damage_multiplier = bp.crit_damage_multiplier
+
+	if _health_bar:
+		update_health_bar()
+
+func heal_to_full() -> void:
+	self.current_hp = self.max_hp
+	print("%s has been healed to full HP: %d" % [self.name, self.current_hp])
+	if _health_bar:
+		update_health_bar()
 
 func _setup_hitbox() -> void:
 	if not _hitbox: push_error("[Piece] Falta un Area2D llamado 'Hitbox'"); return
@@ -207,6 +232,14 @@ var current_target: Piece = null
 var attack_cooldown: float = 0.0
 
 func begin_combat(opponents_list: Array) -> void:
+	if _health_bar:
+		_health_bar.visible = true
+		update_health_bar()
+		print("DEBUG: begin_combat - HealthBar visible: ", _health_bar.visible)
+		print("DEBUG: begin_combat - HealthBar global_position: ", _health_bar.global_position)
+	else:
+		print("DEBUG: begin_combat - HealthBar NOT found.")
+
 	self.opponents = opponents_list
 	
 	# Switch to battle sprite
@@ -267,6 +300,9 @@ func take_damage(amount: int, killer: Piece = null) -> void:
 	self.current_hp -= damage_taken
 	print(name, " takes ", damage_taken, " damage, ", current_hp, " HP left.")
 
+	if _health_bar:
+		update_health_bar()
+
 	if self.current_hp <= 0:
 		print(name, " has been defeated.")
 		defeated.emit(self, killer)
@@ -287,6 +323,9 @@ func _attack(target: Piece) -> void:
 	target.take_damage(self.attack_damage, self)
 
 func end_combat() -> void:
+	if _health_bar:
+		_health_bar.visible = false
+
 	if _sprite: _sprite.visible = true
 	if _battle_sprite:
 		_battle_sprite.visible = false
@@ -303,3 +342,7 @@ func end_combat() -> void:
 	opponents = []
 	current_target = null
 	attack_cooldown = 0.0
+
+func update_health_bar() -> void:
+	if _health_bar:
+		_health_bar.update_bar(current_hp, max_hp)
